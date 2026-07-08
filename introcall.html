@@ -108,6 +108,11 @@
           <input type="tel" id="iphone" name="phone" autocomplete="tel" placeholder="(555) 123-4567">
           <p class="field-error">Please enter a valid phone number.</p>
         </div>
+        <div class="field hidden" id="emailField">
+          <label for="iemail">Email (for your video link)</label>
+          <input type="email" id="iemail" name="email" autocomplete="email">
+          <p class="field-error">Please enter a valid email address so we can send your video link.</p>
+        </div>
         <div class="field">
           <label for="itime">When's the best time to call?</label>
           <select id="itime" name="besttime">
@@ -122,7 +127,7 @@
           <textarea id="inotes" name="notes" rows="3" placeholder="For example: 'I got a strange text last week and want to talk it through.'"></textarea>
         </div>
         <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center;">Request my call</button>
-        <p style="font-size:13.5px;color:var(--muted);margin-top:14px;text-align:center;">We only use your number to arrange this call — it's never shared or added to any list. For video calls, we'll text you a simple link and stay on the phone while you join.</p>
+        <p style="font-size:13.5px;color:var(--muted);margin-top:14px;text-align:center;">We only use your number to arrange this call — it's never shared or added to any list. For video calls, we'll email you a simple link and stay on the phone while you join.</p>
       </form>
       <div class="pane" id="introSuccess">
         <div class="success">

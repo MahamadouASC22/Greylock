@@ -1,4 +1,3 @@
-
 /* ============================================================
    GREYLOCK TRUST — app.js
    Modular front-end: each feature is an isolated module with
@@ -167,6 +166,8 @@ const App = (() => {
         day → time → details → confirmation
      ========================================================== */
   const Booker = {
+    // How far ahead clients can book, in months (increase for more dates)
+    MONTHS_AHEAD: 6,
     SLOT_TIMES: ['9:00 AM', '10:30 AM', '12:00 PM', '1:30 PM', '3:00 PM', '4:30 PM'],
     MONTHS: ['January','February','March','April','May','June',
              'July','August','September','October','November','December'],
@@ -176,17 +177,19 @@ const App = (() => {
       viewYear: null,
       viewMonth: null,
       selectedDate: null,
-      selectedTime: null
+      selectedTime: null,
+      meetingType: 'In person'
     },
 
     init() {
       this.root = document.querySelector('.booker');
-      if (!this.root) return;
+      // only run on pages that actually have the calendar
+      if (!this.root || !document.getElementById('calGrid')) return;
 
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       this.today = today;
-      this.maxAhead = new Date(today.getFullYear(), today.getMonth() + 2, 1);
+      this.maxAhead = new Date(today.getFullYear(), today.getMonth() + this.MONTHS_AHEAD, 1);
       this.state.viewYear = today.getFullYear();
       this.state.viewMonth = today.getMonth();
 
@@ -203,6 +206,16 @@ const App = (() => {
 
       document.getElementById('bookingForm')
         .addEventListener('submit', e => this.submit(e));
+
+      // meeting-type toggle (In person / Video call)
+      this.segButtons = [...this.root.querySelectorAll('.seg-btn')];
+      this.segButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          this.segButtons.forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+          this.state.meetingType = btn.dataset.value;
+        });
+      });
 
       this.renderCalendar();
     },
@@ -331,8 +344,8 @@ const App = (() => {
 
       const name = document.getElementById('name').value.trim();
       document.getElementById('confirmText').textContent =
-        `${name}, your onboarding session is set for ` +
-        `${this.fmtDate(this.state.selectedDate)} at ${this.state.selectedTime}.`;
+        `${name}, your ${this.state.meetingType.toLowerCase()} onboarding session ` +
+        `is set for ${this.fmtDate(this.state.selectedDate)} at ${this.state.selectedTime}.`;
       this.showPane(4);
     }
   };
@@ -375,6 +388,64 @@ const App = (() => {
   };
 
   /* ==========================================================
+     9. INTRO CALL — phone request form
+     ========================================================== */
+  const IntroCall = {
+    callType: 'Phone call',
+
+    init() {
+      this.form = document.getElementById('introForm');
+      if (!this.form) return;
+      this.form.addEventListener('submit', e => this.submit(e));
+
+      // phone / video toggle
+      const segButtons = [...this.form.querySelectorAll('.seg-btn')];
+      segButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          segButtons.forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+          this.callType = btn.dataset.value;
+        });
+      });
+    },
+
+    validate() {
+      let ok = true;
+      const check = (id, test) => {
+        const input = document.getElementById(id);
+        const field = input.closest('.field');
+        const valid = test(input.value.trim());
+        field.classList.toggle('invalid', !valid);
+        if (!valid) ok = false;
+      };
+      check('iname',  v => v.length >= 2);
+      // lenient phone check: 7-15 digits once separators are stripped
+      check('iphone', v => {
+        const digits = v.replace(/[^0-9]/g, '');
+        return digits.length >= 7 && digits.length <= 15;
+      });
+      return ok;
+    },
+
+    submit(e) {
+      e.preventDefault();
+      if (!this.validate()) return;
+      const name = document.getElementById('iname').value.trim().split(' ')[0];
+      const when = document.getElementById('itime').value.toLowerCase();
+      const window_ = when === 'any time is fine'
+        ? 'at a convenient time'
+        : `in the ${when.replace(/ \(.*\)/, '')}`;
+      const how = this.callType === 'Video call'
+        ? `call you ${window_} within one business day to set up your video call`
+        : `call you ${window_} within one business day`;
+      document.getElementById('introConfirm').textContent =
+        `Thank you, ${name} — an advisor will ${how}.`;
+      this.form.style.display = 'none';
+      document.getElementById('introSuccess').classList.add('active');
+    }
+  };
+
+  /* ==========================================================
      BOOT
      ========================================================== */
   return {
@@ -387,6 +458,7 @@ const App = (() => {
       Marquee.init();
       Booker.init();
       ContactForm.init();
+      IntroCall.init();
     }
   };
 })();

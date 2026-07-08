@@ -26,10 +26,11 @@
     <ul class="nav-links">
       <li><a href="why.html">Why us</a></li>
       <li><a href="our.html">Our method</a></li>
-      <li><a href="onboard.html">Onboarding</a></li>
-
       <li><a href="support.html" class="active" aria-current="page">Support</a></li>
-      <li><a class="btn btn-gold nav-cta" href="index.html#get-started">Book a session</a></li>
+      <li class="nav-actions">
+        <a class="btn btn-outline nav-cta" href="introcall.html">Meet an advisor</a>
+        <a class="btn btn-gold nav-cta" href="book.html">Get started</a>
+      </li>
     </ul>
   </div>
 </nav>
@@ -42,7 +43,6 @@
     <p>No chatbots, no ticket numbers, no phone trees. Write to us and a member of the Greylock Trust team gets back to you within one business day.</p>
   </div>
 </header>
-
 
 <!-- ============ HELP TOPICS ============ -->
 <section class="topics">
@@ -117,16 +117,13 @@
   </div>
 </section>
 
-
-
-
 <!-- ============ CONTACT ============ -->
-<section class="contact">
+<section class="contact" id="reach-us" style="padding:0 0 120px;">
   <div class="wrap contact-grid">
     <div class="contact-info reveal">
       <span class="label">Reach us</span>
       <h2>How to <em>get in touch.</em></h2>
-      <p>Whether you're a client or just curious, we're happy to hear from you.</p>
+      <p>Whether you're a client or just curious, we're happy to hear from you — and a real person always writes back.</p>
 
       <div class="channel">
         <div class="ch-icon">
@@ -187,6 +184,7 @@
           <p class="field-error">Please tell us a little more (at least a sentence).</p>
         </div>
         <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center;">Send message</button>
+        <p style="font-size:13.5px;color:var(--muted);margin-top:14px;text-align:center;">Your details are only used to reply to you — never shared or added to any list.</p>
       </form>
       <div class="pane" id="contactSuccess">
         <div class="success">
@@ -207,7 +205,11 @@
     <div class="cta-band-card reveal">
       <h2>Not a client yet? <em>Let's fix that.</em></h2>
       <p>The best support is the kind you rarely need — because everything was set up properly from the start.</p>
-      <a class="btn btn-gold" href="index.html#get-started">Book your onboarding <span class="arr">→</span></a>
+      <div class="cta-actions">
+        <a class="btn btn-ghost-light" href="intro-call.html">Meet an advisor</a>
+        <span class="cta-or">or</span>
+        <a class="btn btn-gold" href="book.html">Get started <span class="arr">→</span></a>
+      </div>
     </div>
   </div>
 </section>
@@ -226,12 +228,13 @@
       <ul>
         <li><a href="why-us.html">Why us</a></li>
         <li><a href="our-method.html">Our method</a></li>
-        <li><a href="index.html#get-started">Book a session</a></li>
+        <li><a href="book.html">Book a session</a></li>
         <li><a href="support.html">Support</a></li>
       </ul>
     </div>
     <div class="small">© 2026 Greylock Trust. All rights reserved. · Privacy Policy · Terms of Service</div>
   </div>
 </footer>
+
 </body>
 </html>

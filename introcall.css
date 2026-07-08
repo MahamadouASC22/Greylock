@@ -1,3 +1,4 @@
+
 /* ============================================================
    GREYLOCK TRUST — styles.css
    Palette: icy whites, frost blues, gold
@@ -830,4 +831,12 @@ footer .small{font-size:13.5px;margin-top:40px;border-top:1px solid var(--line-s
   .story-band-content{padding:64px 28px;}
   .story-band-photo{min-height:420px;order:-1;}
 }
+
+
+/* chips inside a full-bleed band */
+.story-band-content .chips{margin-top:8px;max-width:580px;}
+
+
+/* conditionally shown form fields */
+.field.hidden{display:none;}
 
