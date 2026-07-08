@@ -183,7 +183,8 @@ const App = (() => {
 
     init() {
       this.root = document.querySelector('.booker');
-      if (!this.root) return;
+      // only run on pages that actually have the calendar
+      if (!this.root || !document.getElementById('calGrid')) return;
 
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -390,10 +391,26 @@ const App = (() => {
      9. INTRO CALL — phone request form
      ========================================================== */
   const IntroCall = {
+    callType: 'Phone call',
+
     init() {
       this.form = document.getElementById('introForm');
       if (!this.form) return;
       this.form.addEventListener('submit', e => this.submit(e));
+
+      // phone / video toggle — video reveals the email field
+      const segButtons = [...this.form.querySelectorAll('.seg-btn')];
+      const emailField = document.getElementById('emailField');
+      segButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          segButtons.forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+          this.callType = btn.dataset.value;
+          const video = this.callType === 'Video call';
+          emailField.classList.toggle('hidden', !video);
+          if (!video) emailField.classList.remove('invalid');
+        });
+      });
     },
 
     validate() {
@@ -411,6 +428,10 @@ const App = (() => {
         const digits = v.replace(/[^0-9]/g, '');
         return digits.length >= 7 && digits.length <= 15;
       });
+      // email only required when a video call is chosen
+      if (this.callType === 'Video call') {
+        check('iemail', v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v));
+      }
       return ok;
     },
 
@@ -422,8 +443,11 @@ const App = (() => {
       const window_ = when === 'any time is fine'
         ? 'at a convenient time'
         : `in the ${when.replace(/ \(.*\)/, '')}`;
+      const how = this.callType === 'Video call'
+        ? `email your video link and call you ${window_} within one business day`
+        : `call you ${window_} within one business day`;
       document.getElementById('introConfirm').textContent =
-        `Thank you, ${name} — an advisor will call you ${window_} within one business day.`;
+        `Thank you, ${name} — an advisor will ${how}.`;
       this.form.style.display = 'none';
       document.getElementById('introSuccess').classList.add('active');
     }

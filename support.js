@@ -398,13 +398,17 @@ const App = (() => {
       if (!this.form) return;
       this.form.addEventListener('submit', e => this.submit(e));
 
-      // phone / video toggle
+      // phone / video toggle — video reveals the email field
       const segButtons = [...this.form.querySelectorAll('.seg-btn')];
+      const emailField = document.getElementById('emailField');
       segButtons.forEach(btn => {
         btn.addEventListener('click', () => {
           segButtons.forEach(b => b.classList.remove('selected'));
           btn.classList.add('selected');
           this.callType = btn.dataset.value;
+          const video = this.callType === 'Video call';
+          emailField.classList.toggle('hidden', !video);
+          if (!video) emailField.classList.remove('invalid');
         });
       });
     },
@@ -424,6 +428,10 @@ const App = (() => {
         const digits = v.replace(/[^0-9]/g, '');
         return digits.length >= 7 && digits.length <= 15;
       });
+      // email only required when a video call is chosen
+      if (this.callType === 'Video call') {
+        check('iemail', v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v));
+      }
       return ok;
     },
 
@@ -436,7 +444,7 @@ const App = (() => {
         ? 'at a convenient time'
         : `in the ${when.replace(/ \(.*\)/, '')}`;
       const how = this.callType === 'Video call'
-        ? `call you ${window_} within one business day to set up your video call`
+        ? `email your video link and call you ${window_} within one business day`
         : `call you ${window_} within one business day`;
       document.getElementById('introConfirm').textContent =
         `Thank you, ${name} — an advisor will ${how}.`;

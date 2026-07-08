@@ -834,3 +834,13 @@ footer .small{font-size:13.5px;margin-top:40px;border-top:1px solid var(--line-s
 
 /* chips inside a full-bleed band */
 .story-band-content .chips{margin-top:8px;max-width:580px;}
+
+
+/* conditionally shown form fields */
+.field.hidden{display:none;}
+
+
+/* stacked section header (topics on support) */
+.topics-head{max-width:620px;margin-bottom:52px;}
+.topics-head h2{font-size:clamp(32px,4vw,48px);margin-bottom:14px;}
+.topics-head p{color:var(--muted);font-size:19px;}
