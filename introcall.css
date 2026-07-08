@@ -799,3 +799,35 @@ footer .small{font-size:13.5px;margin-top:40px;border-top:1px solid var(--line-s
 }
 .seg-btn:focus-visible{outline:3px solid var(--gold);}
 
+
+/* ---------- story as a full-bleed split (why-us) ---------- */
+.story-band{
+  display:grid;grid-template-columns:1.02fr .98fr;background:var(--surface);
+  border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);
+}
+.story-band-content{
+  display:flex;flex-direction:column;justify-content:center;
+  padding:100px 64px 100px max(28px, calc((100vw - 1320px)/2 + 28px));
+}
+.story-band-content h2{font-size:clamp(32px,3.8vw,48px);margin-bottom:22px;}
+.story-band-content h2 em{color:var(--gold-deep);font-style:italic;}
+.story-band-content p{color:var(--muted);font-size:18px;margin-bottom:18px;max-width:34em;}
+.story-band-content blockquote{
+  margin:14px 0 0;padding:22px 26px;border-left:3px solid var(--gold);
+  background:var(--gold-tint);border-radius:0 12px 12px 0;max-width:34em;
+  font-family:var(--font-serif);font-style:italic;font-size:19.5px;color:var(--ice-ink);line-height:1.5;
+}
+.story-band-photo{position:relative;overflow:hidden;min-height:520px;}
+.story-band-photo img{
+  position:absolute;inset:-6% 0;width:100%;height:112%;object-fit:cover;will-change:transform;
+}
+.story-band-photo::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(255,255,255,.4) 0%,rgba(255,255,255,0) 22%);
+}
+@media(max-width:900px){
+  .story-band{grid-template-columns:1fr;}
+  .story-band-content{padding:64px 28px;}
+  .story-band-photo{min-height:420px;order:-1;}
+}
+

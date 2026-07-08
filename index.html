@@ -27,7 +27,10 @@
       <li><a href="why.html">Why us</a></li>
       <li><a href="our.html">Our method</a></li>
       <li><a href="support.html">Support</a></li>
-      <li><a class="btn btn-gold nav-cta" href="#get-started">Book a session</a></li>
+      <li class="nav-actions">
+        <a class="btn btn-outline nav-cta" href="introcall.html">Meet an advisor</a>
+        <a class="btn btn-gold nav-cta" href="book.html">Get started</a>
+      </li>
     </ul>
   </div>
 </nav>
@@ -36,13 +39,10 @@
 <header class="hero" id="top">
   <div class="hero-left">
     <h1>
-      <span class="line"><em>Quietly</em></span>
-      <span class="line"><em class="gold">Protected.</em></span>
+      <span class="line"><span>Greylock</span></span>
+      <span class="line"><span class="gold"><em>trust.</em></span></span>
     </h1>
     <p class="lead">Your digital life, quietly protected. A dedicated cybersecurity advisor sets everything up, explains it in plain English, and checks in every quarter — so you never have to figure it out alone.</p>
-    <div class="hero-ctas">
-      <a class="btn btn-gold" href="#get-started">Book your onboarding <span class="arr">→</span></a>
-    </div>
     <p class="hero-note">No jargon. No pressure. Just a friendly conversation to start.</p>
   </div>
   <div class="hero-right">
@@ -70,7 +70,7 @@
   <div class="wrap">
     <div class="method-head reveal">
       <div>
-        <span class="label">Our method</span>
+        <span class="label">What we do</span>
         <h2>Three steps. Zero homework.</h2>
       </div>
       <p>You don't need to learn cybersecurity. You just need someone in your corner who already knows it.</p>
@@ -119,107 +119,16 @@
   </div>
 </section>
 
-<!-- ============ GET STARTED ============ -->
-<section class="get-started" id="get-started">
-  <div class="wrap sched-grid">
-    <div class="sched-info reveal">
-      <span class="label">Get started</span>
-      <h2>Book your onboarding session</h2>
-      <p>Choose a time that suits you. Sessions are relaxed, unhurried, and tailored entirely to you.</p>
-      <div class="detail">
-        <h3>What to <em>expect</em></h3>
-        <p class="body">A relaxed session of up to three hours — at your home, office, or over video. Bring your devices and your questions; we'll handle the rest.</p>
-      </div>
-      <div class="detail">
-        <h3>What you'll <em>leave with</em></h3>
-        <p class="body">Hardened accounts, the right tools installed and explained, a personal security playbook, and a standing quarterly check-in on your calendar.</p>
-      </div>
-      <div class="detail">
-        <h3>Changed your <em>mind?</em></h3>
-        <p class="body">Reschedule or cancel any time — no fees, no fuss.</p>
-      </div>
-    </div>
-
-    <div class="booker reveal">
-      <div class="booker-steps">
-        <div class="bstep active" id="tab1">1 · Day</div>
-        <div class="bstep" id="tab2">2 · Time</div>
-        <div class="bstep" id="tab3">3 · Details</div>
-      </div>
-
-      <div class="pane active" id="pane1">
-        <div class="cal-head">
-          <h3 id="calMonth"></h3>
-          <div class="cal-nav">
-            <button type="button" id="prevMonth" aria-label="Previous month">‹</button>
-            <button type="button" id="nextMonth" aria-label="Next month">›</button>
-          </div>
-        </div>
-        <div class="cal-grid" id="calGrid"></div>
-      </div>
-
-      <div class="pane" id="pane2">
-        <button type="button" class="back-link" data-back="1">‹ Choose a different day</button>
-        <div class="picked" id="pickedDay"></div>
-        <div class="slots" id="slotGrid"></div>
-      </div>
-
-      <div class="pane" id="pane3">
-        <button type="button" class="back-link" data-back="2">‹ Choose a different time</button>
-        <div class="picked" id="pickedSlot"></div>
-        <form id="bookingForm" novalidate>
-          <div class="field">
-            <label for="name">Your name</label>
-            <input type="text" id="name" name="name" autocomplete="name">
-            <p class="field-error">Please enter your name.</p>
-          </div>
-          <div class="field">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" autocomplete="email">
-            <p class="field-error">Please enter a valid email address.</p>
-          </div>
-          <div class="field">
-            <label for="situation">Which sounds most like you?</label>
-            <select id="situation" name="situation">
-              <option>I'm new to this and want to get protected</option>
-              <option>I've dealt with a scam or breach before</option>
-              <option>I'm currently dealing with an incident</option>
-              <option>I'm asking on behalf of a family member</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="notes">Anything you'd like us to know? (optional)</label>
-            <textarea id="notes" name="notes" rows="3"></textarea>
-          </div>
-          <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center;">Confirm my session</button>
-        </form>
-      </div>
-
-      <div class="pane" id="pane4">
-        <div class="success">
-          <div class="badge">
-            <svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg>
-          </div>
-          <h3>You're booked.</h3>
-          <p id="confirmText"></p>
-          <p style="margin-top:10px;">A confirmation email is on its way, and your advisor will call to introduce themselves before your session.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============ SUPPORT ============ -->
-<section class="support" id="support">
+<!-- ============ CTA ============ -->
+<section class="cta-band" style="padding:110px 0 120px;">
   <div class="wrap">
-    <div class="support-card reveal">
-      <div>
-        <h2>Questions? <em>A person answers.</em></h2>
-        <p>Whether you're a client or just curious, write to us and a member of the Greylock Trust team will get back to you within one business day.</p>
-      </div>
-      <div class="support-right">
-        <a class="mail" href="mailto:support@greylocktrust.com">support@greylocktrust.com</a>
-        <small>Existing clients can always reach their advisor directly.</small>
+    <div class="cta-band-card reveal">
+      <h2>Ready when <em>you are.</em></h2>
+      <p>One relaxed session is all it takes to get everything set up, explained in plain English, and quietly watched over — for you and the people you love.</p>
+      <div class="cta-actions">
+        <a class="btn btn-ghost-light" href="intro-call.html">Meet an advisor</a>
+        <span class="cta-or">or</span>
+        <a class="btn btn-gold" href="book.html">Get started <span class="arr">→</span></a>
       </div>
     </div>
   </div>
@@ -237,16 +146,14 @@
         <p>Personal digital security for people who'd rather live their lives than worry about them.</p>
       </div>
       <ul>
-        <li><a href="#why">Why us</a></li>
-        <li><a href="#method">Our method</a></li>
-        <li><a href="#get-started">Book a session</a></li>
-        <li><a href="#support">Support</a></li>
+        <li><a href="why-us.html">Why us</a></li>
+        <li><a href="our-method.html">Our method</a></li>
+        <li><a href="book.html">Book a session</a></li>
+        <li><a href="support.html">Support</a></li>
       </ul>
     </div>
     <div class="small">© 2026 Greylock Trust. All rights reserved. · Privacy Policy · Terms of Service</div>
   </div>
 </footer>
-
-
 </body>
 </html>
