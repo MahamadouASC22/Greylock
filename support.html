@@ -222,5 +222,51 @@
   </div>
 </footer>
 
+<!-- ============================================================
+  INLINE MENU (bypass + diagnostic)
+  Paste this whole block into ONE page, at the very bottom,
+  just BEFORE the closing </body> tag. It carries its own logic,
+  so it works even if js/app.js is stale, cached, or mis-pathed.
+============================================================ -->
+<script>
+(function () {
+  'use strict';
+  function boot() {
+    var navInner = document.querySelector('.site-nav .nav-inner');
+    var links = document.querySelector('.site-nav .nav-links');
+    if (!navInner || !links) { alert('DIAGNOSIS: this page has no .site-nav / .nav-links — send Claude your <nav> block.'); return; }
+
+    var burger = document.getElementById('navBurger');
+    if (!burger) {
+      burger = document.createElement('button');
+      burger.id = 'navBurger'; burger.className = 'nav-burger';
+      burger.setAttribute('aria-label', 'Menu');
+      burger.innerHTML =
+        '<svg class="bars" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" stroke="#1E3145" stroke-width="2" fill="none" stroke-linecap="round"/></svg>' +
+        '<svg class="x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="#1E3145" stroke-width="2" fill="none" stroke-linecap="round"/></svg>';
+      navInner.appendChild(burger);
+    }
+    var old = document.getElementById('mobileMenu');
+    if (old) old.remove();
+    var menu = document.createElement('div');
+    menu.id = 'mobileMenu'; menu.className = 'mobile-menu';
+    links.querySelectorAll('a:not(.btn)').forEach(function (a) {
+      var c = a.cloneNode(true); c.classList.remove('active'); menu.appendChild(c);
+    });
+    var actions = document.createElement('div'); actions.className = 'mm-actions';
+    links.querySelectorAll('a.btn').forEach(function (b) { actions.appendChild(b.cloneNode(true)); });
+    if (actions.children.length) menu.appendChild(actions);
+    document.querySelector('.site-nav').insertAdjacentElement('afterend', menu);
+
+    burger.onclick = function () { document.body.classList.toggle('menu-open'); };
+    menu.addEventListener('click', function (e) {
+      if (e.target.closest('a')) document.body.classList.remove('menu-open');
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+
 </body>
 </html>

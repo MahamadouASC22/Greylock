@@ -1860,67 +1860,6 @@ footer .small{font-size:13.5px;margin-top:40px;border-top:1px solid var(--line-s
 #onboardBook .booker{box-shadow:none;border:1px solid var(--pv-line);}
 
 /* ============================================================
-   MOBILE NAV POLISH — brand, links, buttons
-   ============================================================ */
-@media(max-width:860px){
-  .nav-inner{padding:12px 18px;gap:10px;}
-  .brand img{height:34px;}
-  .brand-text{font-size:12.5px;letter-spacing:.1em;}
-  /* keep Client login visible alongside the buttons */
-  .nav-links{gap:14px;}
-  .nav-links li{display:none;}
-  .nav-links li:nth-last-child(2), .nav-links li:last-child{display:flex;}
-  .nav-links li:nth-last-child(2) a{font-size:14.5px;font-weight:600;}
-  .nav-actions{gap:8px;}
-  .btn.nav-cta{padding:10px 16px;font-size:13.5px;border-radius:999px;}
-}
-@media(max-width:640px){
-  .nav-actions .btn-outline{display:none;}       /* one clear action */
-  .btn.nav-cta{padding:10px 18px;font-size:14px;}
-  .brand img{height:32px;}
-  .brand-text{display:none;}                      /* logo speaks alone */
-  .nav-inner{padding:10px 14px;}
-}
-@media(max-width:400px){
-  .nav-links li:nth-last-child(2){display:none;}  /* tightest screens: logo + Get started */
-}
-
-/* ============================================================
-   MOBILE NAV v2 — full menu, every option
-   ============================================================ */
-.nav-burger{
-  display:none;width:44px;height:44px;border-radius:12px;border:1px solid var(--line-soft);
-  background:var(--surface);cursor:pointer;align-items:center;justify-content:center;flex:none;
-  margin-left:auto;
-}
-.nav-burger svg{width:20px;height:20px;stroke:var(--ice-ink);stroke-width:2;fill:none;stroke-linecap:round;}
-.nav-burger .x{display:none;}
-.mobile-menu{
-  display:none;position:fixed;left:0;right:0;top:64px;z-index:99;
-  background:var(--surface);border-bottom:1px solid var(--line-soft);
-  box-shadow:0 30px 60px rgba(30,49,69,.14);
-  padding:10px 20px 22px;
-}
-.mobile-menu a{
-  display:block;text-decoration:none;color:var(--ice-ink);font-size:17px;font-weight:600;
-  padding:15px 6px;border-bottom:1px solid var(--line-soft);
-}
-.mobile-menu a:active{color:var(--gold-deep);}
-.mobile-menu .mm-actions{display:grid;gap:10px;padding-top:16px;}
-.mobile-menu .mm-actions .btn{width:100%;justify-content:center;padding:15px;font-size:15.5px;}
-body.menu-open .mobile-menu{display:block;}
-body.menu-open .nav-burger .bars{display:none;}
-body.menu-open .nav-burger .x{display:block;}
-body.menu-open{overflow:hidden;}
-@media(max-width:860px){
-  .nav-links{display:none;}          /* desktop links off */
-  .nav-burger{display:flex;}         /* burger on */
-  .nav-inner{padding:11px 18px;}
-  .brand img{height:34px;}
-  .brand-text{font-size:12.5px;letter-spacing:.1em;display:inline;} /* brand text returns */
-}
-
-/* ============================================================
    OUR APPROACH — its own editorial language (.ap-*)
    ============================================================ */
 .ap-hero{padding:110px 0 70px;}
@@ -2070,11 +2009,7 @@ body.menu-open{overflow:hidden;}
 }
 
 /* burger menu action buttons: side-by-side, equal, tidy */
-.mobile-menu .mm-actions{grid-template-columns:1fr 1fr;gap:12px;padding-top:18px;}
-.mobile-menu .mm-actions .btn{
-  padding:14px 10px;font-size:14.5px;border-radius:999px;white-space:nowrap;
-}
-@media(max-width:380px){.mobile-menu .mm-actions{grid-template-columns:1fr;}}
+@media(max-width:380px){}
 
 /* ============================================================
    APPROACH — sovereignty & worth sections
@@ -2171,19 +2106,6 @@ body.menu-open{overflow:hidden;}
 /* ============================================================
    MOBILE MENU BUTTONS — match the site's buttons exactly
    ============================================================ */
-.mobile-menu .mm-actions{grid-template-columns:1fr;gap:12px;padding-top:18px;}
-.mobile-menu .mm-actions .btn{
-  width:100%;justify-content:center;white-space:normal;
-  padding:15px 26px;font-size:15.5px;   /* same scale as the site's buttons */
-}
-
-/* mobile menu buttons: force true centering (base .btn is inline-block, so
-   justify-content alone did nothing — hence the off-center labels) */
-.mobile-menu .mm-actions .btn{
-  display:flex;align-items:center;justify-content:center;text-align:center;
-  width:100%;line-height:1.2;
-}
-
 /* ============================================================
    APPROACH — the five questions
    ============================================================ */
@@ -2222,54 +2144,9 @@ body.menu-open{overflow:hidden;}
   .ask-list li::after{left:26px;}
 }
 
-/* mobile menu: never clip the bottom button — scroll within the panel,
-   and respect the phone's home-indicator safe area */
-.mobile-menu{
-  max-height:calc(100vh - 64px);
-  max-height:calc(100dvh - 64px);
-  overflow-y:auto;
-  padding-bottom:calc(30px + env(safe-area-inset-bottom));
-}
-
-/* booked slots & full days */
-.slot:disabled, .slot.taken{
-  opacity:.45;cursor:not-allowed;text-decoration:line-through;
-  background:var(--frost);color:var(--muted);
-}
-.cal-day.full{position:relative;}
-.cal-day.full::after{content:"·";position:absolute;bottom:2px;left:50%;transform:translateX(-50%);color:var(--gold);font-size:18px;line-height:1;}
-.slot-note{
-  background:var(--warn-soft);border:1px solid #EEDDB7;color:#6E5410;
-  font-size:14.5px;border-radius:10px;padding:11px 14px;margin-bottom:14px;
-}
-
-/* manage panel (private booking links) + confirmation change note */
-.manage-panel{
-  max-width:640px;margin:0 auto 34px;background:var(--surface);
-  border:1px solid var(--gold-soft);border-radius:16px;padding:26px 28px;
-  box-shadow:0 14px 40px rgba(30,49,69,.08);
-}
-.manage-panel h3{font-family:var(--font-serif);font-weight:500;font-size:22px;color:var(--ice-ink);margin-bottom:10px;}
-.manage-panel p{font-size:15.5px;line-height:1.65;color:var(--muted);margin-bottom:14px;}
-.manage-panel a{color:var(--gold-deep);font-weight:600;}
-.confirm-change{font-size:14.5px;line-height:1.7;color:var(--muted);margin-top:14px;max-width:44em;}
-.confirm-change a{color:var(--gold-deep);font-weight:600;}
-
 /* ============================================================
    MOBILE POLISH PASS — nav fallback, CTA stacks, band buttons
    ============================================================ */
-/* Nav: pages WITH the burger markup get the menu; pages WITHOUT it
-   keep a compact desktop nav (so nothing ever disappears). */
-@media(max-width:860px){
-  body:not(.has-mobilenav) .nav-links{
-    display:flex;gap:12px;align-items:center;
-  }
-  body:not(.has-mobilenav) .nav-links a{font-size:13.5px;}
-  body:not(.has-mobilenav) .nav-actions{gap:6px;}
-  body:not(.has-mobilenav) .btn.nav-cta{padding:9px 14px;font-size:12.5px;}
-  body:not(.has-mobilenav) .nav-burger{display:none;}
-}
-
 /* CTA bands with multiple buttons: stack cleanly on phones */
 @media(max-width:640px){
   .cta-actions{flex-direction:column;align-items:stretch;gap:12px;width:100%;}
@@ -2301,34 +2178,6 @@ body.menu-open{overflow:hidden;}
 }
 
 /* ============================================================
-   MOBILE NAV v3 — no hamburger: a visible two-row header
-   (works with the ORIGINAL nav markup; burger bits are retired)
-   ============================================================ */
-@media(max-width:860px){
-  .nav-burger, .mobile-menu{display:none !important;}
-  body.menu-open{overflow:auto;}
-
-  .nav-inner{
-    flex-direction:column;align-items:stretch;gap:8px;
-    padding:10px 16px 12px;
-  }
-  .brand{align-self:flex-start;}
-  .nav-links{
-    display:flex !important;              /* overrides every earlier rule */
-    width:100%;align-items:center;gap:14px;
-  }
-  .nav-links li{display:flex;}
-  .nav-links a{font-size:14px;font-weight:600;}
-  .nav-actions{margin-left:auto;gap:8px;}
-  .btn.nav-cta{padding:9px 15px;font-size:13px;border-radius:999px;}
-}
-@media(max-width:420px){
-  .nav-links{gap:11px;}
-  .nav-links a{font-size:13px;}
-  .btn.nav-cta{padding:8px 12px;font-size:12px;}
-}
-
-/* ============================================================
    GHOST BUTTON — same structure/placement as the gold one,
    its own color kept
    ============================================================ */
@@ -2342,4 +2191,48 @@ body.menu-open{overflow:hidden;}
 }
 @media(max-width:640px){
   .cta-actions .btn-ghost-light{display:flex;width:100%;max-width:none;}
+}
+
+
+/* ============================================================
+   MOBILE NAV — FINAL: hamburger (self-built by app.js)
+   ============================================================ */
+.nav-burger{
+  display:none;width:44px;height:44px;border-radius:12px;
+  border:1px solid var(--line-soft);background:var(--surface);
+  cursor:pointer;align-items:center;justify-content:center;
+  flex:none;margin-left:auto;
+}
+.nav-burger svg{width:20px;height:20px;stroke:var(--ice-ink);stroke-width:2;fill:none;stroke-linecap:round;}
+.nav-burger .x{display:none;}
+
+.mobile-menu{
+  display:none;position:fixed;left:0;right:0;top:64px;z-index:99;
+  background:var(--surface);border-bottom:1px solid var(--line-soft);
+  box-shadow:0 30px 60px rgba(30,49,69,.14);
+  padding:10px 20px calc(30px + env(safe-area-inset-bottom));
+  max-height:calc(100dvh - 64px);overflow-y:auto;
+}
+.mobile-menu a:not(.btn){
+  display:block;text-decoration:none;color:var(--ice-ink);
+  font-size:17px;font-weight:600;padding:15px 6px;
+  border-bottom:1px solid var(--line-soft);
+}
+.mobile-menu .mm-actions{display:grid;gap:12px;padding-top:18px;}
+.mobile-menu .mm-actions .btn{
+  display:flex;width:100%;align-items:center;justify-content:center;
+  text-align:center;padding:15px 26px;font-size:15.5px;line-height:1.2;
+}
+
+body.menu-open .mobile-menu{display:block;}
+body.menu-open .nav-burger .bars{display:none;}
+body.menu-open .nav-burger .x{display:block;}
+body.menu-open{overflow:hidden;}
+
+@media(max-width:860px){
+  .nav-links{display:none;}
+  .nav-burger{display:flex;}
+  .nav-inner{padding:11px 18px;}
+  .brand img{height:34px;}
+  .brand-text{display:inline;font-size:12.5px;letter-spacing:.1em;}
 }

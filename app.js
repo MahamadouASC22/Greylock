@@ -771,23 +771,64 @@ const App = (() => {
 document.addEventListener('DOMContentLoaded', App.init);
 
 /* ============================================================
-   MobileNav — hamburger menu (all marketing pages)
+   MobileNav — hamburger menu, self-building on every page.
+   No markup required: the button and panel are created from
+   whatever links this page's nav actually contains.
    ============================================================ */
 (function () {
   'use strict';
-  const burger = document.getElementById('navBurger');
-  const menu = document.getElementById('mobileMenu');
-  if (!burger || !menu) return;
-  document.body.classList.add('has-mobilenav');
-  burger.addEventListener('click', () => {
-    document.body.classList.toggle('menu-open');
+  function initMobileNav() {
+  const navInner = document.querySelector('.site-nav .nav-inner');
+  const links = document.querySelector('.site-nav .nav-links');
+  if (!navInner || !links) return;
+
+  /* button: reuse one if the page already has it, else build it */
+  let burger = document.getElementById('navBurger');
+  if (!burger) {
+    burger = document.createElement('button');
+    burger.id = 'navBurger';
+    burger.className = 'nav-burger';
+    burger.setAttribute('aria-label', 'Menu');
+    burger.innerHTML =
+      '<svg class="bars" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>' +
+      '<svg class="x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+    navInner.appendChild(burger);
+  }
+
+  /* panel: rebuild fresh from the live nav so it always matches */
+  let menu = document.getElementById('mobileMenu');
+  if (menu) menu.remove();
+  menu = document.createElement('div');
+  menu.id = 'mobileMenu';
+  menu.className = 'mobile-menu';
+
+  links.querySelectorAll('a:not(.btn)').forEach(a => {
+    const copy = a.cloneNode(true);
+    copy.classList.remove('active');
+    menu.appendChild(copy);
   });
+  const actions = document.createElement('div');
+  actions.className = 'mm-actions';
+  links.querySelectorAll('a.btn').forEach(b => actions.appendChild(b.cloneNode(true)));
+  if (actions.children.length) menu.appendChild(actions);
+
+  document.querySelector('.site-nav').insertAdjacentElement('afterend', menu);
+
+  /* behavior */
+  burger.addEventListener('click', () =>
+    document.body.classList.toggle('menu-open'));
   menu.addEventListener('click', e => {
-    if (e.target.tagName === 'A') document.body.classList.remove('menu-open');
+    if (e.target.closest('a')) document.body.classList.remove('menu-open');
   });
   window.addEventListener('resize', () => {
     if (window.innerWidth > 860) document.body.classList.remove('menu-open');
   });
+  }
+  /* run whether the script loads in <head> or at the end of <body> */
+  if (document.readyState === 'loading')
+    document.addEventListener('DOMContentLoaded', initMobileNav);
+  else
+    initMobileNav();
 })();
 
 
