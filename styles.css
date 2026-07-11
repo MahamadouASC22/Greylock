@@ -799,3 +799,92 @@ footer .small{font-size:13.5px;margin-top:40px;border-top:1px solid var(--line-s
 }
 .seg-btn:focus-visible{outline:3px solid var(--gold);}
 
+
+@media(max-width:860px){
+  .nav-inner{padding:12px 18px;gap:10px;}
+  .brand img{height:34px;}
+  .brand-text{font-size:12.5px;letter-spacing:.1em;}
+  /* keep Client login visible alongside the buttons */
+  .nav-links{gap:14px;}
+  .nav-links li{display:none;}
+  .nav-links li:nth-last-child(2), .nav-links li:last-child{display:flex;}
+  .nav-links li:nth-last-child(2) a{font-size:14.5px;font-weight:600;}
+  .nav-actions{gap:8px;}
+  .btn.nav-cta{padding:10px 16px;font-size:13.5px;border-radius:999px;}
+}
+@media(max-width:640px){
+  .nav-actions .btn-outline{display:none;}       /* one clear action */
+  .btn.nav-cta{padding:10px 18px;font-size:14px;}
+  .brand img{height:32px;}
+  .brand-text{display:none;}                      /* logo speaks alone */
+  .nav-inner{padding:10px 14px;}
+}
+@media(max-width:400px){
+  .nav-links li:nth-last-child(2){display:none;}  /* tightest screens: logo + Get started */
+}
+
+/* ============================================================
+   MOBILE NAV v2 — full menu, every option
+   ============================================================ */
+.nav-burger{
+  display:none;width:44px;height:44px;border-radius:12px;border:1px solid var(--line-soft);
+  background:var(--surface);cursor:pointer;align-items:center;justify-content:center;flex:none;
+  margin-left:auto;
+}
+.nav-burger svg{width:20px;height:20px;stroke:var(--ice-ink);stroke-width:2;fill:none;stroke-linecap:round;}
+.nav-burger .x{display:none;}
+.mobile-menu{
+  display:none;position:fixed;left:0;right:0;top:64px;z-index:99;
+  background:var(--surface);border-bottom:1px solid var(--line-soft);
+  box-shadow:0 30px 60px rgba(30,49,69,.14);
+  padding:10px 20px 22px;
+}
+.mobile-menu a{
+  display:block;text-decoration:none;color:var(--ice-ink);font-size:17px;font-weight:600;
+  padding:15px 6px;border-bottom:1px solid var(--line-soft);
+}
+.mobile-menu a:active{color:var(--gold-deep);}
+.mobile-menu .mm-actions{display:grid;gap:10px;padding-top:16px;}
+.mobile-menu .mm-actions .btn{width:100%;justify-content:center;padding:15px;font-size:15.5px;}
+body.menu-open .mobile-menu{display:block;}
+body.menu-open .nav-burger .bars{display:none;}
+body.menu-open .nav-burger .x{display:block;}
+body.menu-open{overflow:hidden;}
+@media(max-width:860px){
+  .nav-links{display:none;}          /* desktop links off */
+  .nav-burger{display:flex;}         /* burger on */
+  .nav-inner{padding:11px 18px;}
+  .brand img{height:34px;}
+  .brand-text{font-size:12.5px;letter-spacing:.1em;display:inline;} /* brand text returns */
+}
+
+/* burger menu action buttons: side-by-side, equal, tidy */
+.mobile-menu .mm-actions{grid-template-columns:1fr 1fr;gap:12px;padding-top:18px;}
+.mobile-menu .mm-actions .btn{
+  padding:14px 10px;font-size:14.5px;border-radius:999px;white-space:nowrap;
+}
+@media(max-width:380px){.mobile-menu .mm-actions{grid-template-columns:1fr;}}
+
+
+.mobile-menu .mm-actions{grid-template-columns:1fr;gap:12px;padding-top:18px;}
+.mobile-menu .mm-actions .btn{
+  width:100%;justify-content:center;white-space:normal;
+  padding:15px 26px;font-size:15.5px;   /* same scale as the site's buttons */
+}
+
+/* mobile menu buttons: force true centering (base .btn is inline-block, so
+   justify-content alone did nothing — hence the off-center labels) */
+.mobile-menu .mm-actions .btn{
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  width:100%;line-height:1.2;
+}
+
+
+/* mobile menu: never clip the bottom button — scroll within the panel,
+   and respect the phone's home-indicator safe area */
+.mobile-menu{
+  max-height:calc(100vh - 64px);
+  max-height:calc(100dvh - 64px);
+  overflow-y:auto;
+  padding-bottom:calc(30px + env(safe-area-inset-bottom));
+}

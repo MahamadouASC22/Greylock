@@ -448,3 +448,30 @@ const App = (() => {
 })();
 
 document.addEventListener('DOMContentLoaded', App.init);
+
+(function () {
+  'use strict';
+  const burger = document.getElementById('navBurger');
+  const menu = document.getElementById('mobileMenu');
+  if (!burger || !menu) return;
+  burger.addEventListener('click', () => {
+    document.body.classList.toggle('menu-open');
+  });
+  menu.addEventListener('click', e => {
+    if (e.target.tagName === 'A') document.body.classList.remove('menu-open');
+  });
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 860) document.body.classList.remove('menu-open');
+  });
+})();
+
+
+/* intro-call: constrain the date picker to tomorrow onward */
+(function(){
+  'use strict';
+  const d = document.getElementById('idate');
+  if (!d) return;
+  const t = new Date(); t.setDate(t.getDate() + 1);
+  d.min = t.toISOString().split('T')[0];
+})();
+
