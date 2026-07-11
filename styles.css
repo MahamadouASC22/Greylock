@@ -2254,3 +2254,92 @@ body.menu-open{overflow:hidden;}
 .manage-panel a{color:var(--gold-deep);font-weight:600;}
 .confirm-change{font-size:14.5px;line-height:1.7;color:var(--muted);margin-top:14px;max-width:44em;}
 .confirm-change a{color:var(--gold-deep);font-weight:600;}
+
+/* ============================================================
+   MOBILE POLISH PASS — nav fallback, CTA stacks, band buttons
+   ============================================================ */
+/* Nav: pages WITH the burger markup get the menu; pages WITHOUT it
+   keep a compact desktop nav (so nothing ever disappears). */
+@media(max-width:860px){
+  body:not(.has-mobilenav) .nav-links{
+    display:flex;gap:12px;align-items:center;
+  }
+  body:not(.has-mobilenav) .nav-links a{font-size:13.5px;}
+  body:not(.has-mobilenav) .nav-actions{gap:6px;}
+  body:not(.has-mobilenav) .btn.nav-cta{padding:9px 14px;font-size:12.5px;}
+  body:not(.has-mobilenav) .nav-burger{display:none;}
+}
+
+/* CTA bands with multiple buttons: stack cleanly on phones */
+@media(max-width:640px){
+  .cta-actions{flex-direction:column;align-items:stretch;gap:12px;width:100%;}
+  .cta-actions .btn{width:100%;justify-content:center;text-align:center;}
+  .cta-or{display:none;}
+}
+
+/* ghost buttons on ink bands: visible, consistent with gold buttons */
+.btn-ghost-light{
+  border:1.5px solid rgba(245,239,226,.55);color:#F5EFE2;background:rgba(255,255,255,.06);
+}
+.btn-ghost-light:hover{background:rgba(255,255,255,.14);border-color:#F5EFE2;transform:translateY(-1px);}
+
+/* dark band buttons: center + full-width on phones */
+@media(max-width:640px){
+  .cta-band-card .btn, .skip-band .btn, .band .btn{
+    display:flex;width:100%;justify-content:center;
+  }
+}
+
+/* general phone rhythm: calmer sections, comfortable cards */
+@media(max-width:640px){
+  .wrap{padding-left:20px;padding-right:20px;}
+  section{scroll-margin-top:70px;}
+  .page-hero{padding:80px 0 60px;}
+  .page-hero h1{font-size:clamp(38px,11vw,52px);}
+  .booker{padding:24px 18px;}
+  .cta-band-card{padding:44px 24px;text-align:center;}
+}
+
+/* ============================================================
+   MOBILE NAV v3 — no hamburger: a visible two-row header
+   (works with the ORIGINAL nav markup; burger bits are retired)
+   ============================================================ */
+@media(max-width:860px){
+  .nav-burger, .mobile-menu{display:none !important;}
+  body.menu-open{overflow:auto;}
+
+  .nav-inner{
+    flex-direction:column;align-items:stretch;gap:8px;
+    padding:10px 16px 12px;
+  }
+  .brand{align-self:flex-start;}
+  .nav-links{
+    display:flex !important;              /* overrides every earlier rule */
+    width:100%;align-items:center;gap:14px;
+  }
+  .nav-links li{display:flex;}
+  .nav-links a{font-size:14px;font-weight:600;}
+  .nav-actions{margin-left:auto;gap:8px;}
+  .btn.nav-cta{padding:9px 15px;font-size:13px;border-radius:999px;}
+}
+@media(max-width:420px){
+  .nav-links{gap:11px;}
+  .nav-links a{font-size:13px;}
+  .btn.nav-cta{padding:8px 12px;font-size:12px;}
+}
+
+/* ============================================================
+   GHOST BUTTON — same structure/placement as the gold one,
+   its own color kept
+   ============================================================ */
+.btn-ghost-light{
+  display:flex;width:100%;max-width:320px;
+  margin-left:auto;margin-right:auto;justify-content:center;text-align:center;
+}
+/* …but when it sits in a row NEXT TO a gold button, behave normally */
+.cta-actions .btn-ghost-light{
+  display:inline-flex;width:auto;max-width:none;margin:0;
+}
+@media(max-width:640px){
+  .cta-actions .btn-ghost-light{display:flex;width:100%;max-width:none;}
+}

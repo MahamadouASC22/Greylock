@@ -74,6 +74,17 @@ const BookingsAPI = {
     } catch (_) { return { ok: false }; }
   },
 
+  async insert(table, payload) {
+    try {
+      const r = await fetch(`${GREYLOCK.SUPABASE_URL}/rest/v1/${table}`, {
+        method: 'POST',
+        headers: { ...this.headers(), 'Prefer': 'return=minimal' },
+        body: JSON.stringify(payload)
+      });
+      return { ok: r.ok };
+    } catch (_) { return { ok: false }; }
+  },
+
   async rpc(fn, args) {
     try {
       const r = await fetch(`${GREYLOCK.SUPABASE_URL}/rest/v1/rpc/${fn}`, {
@@ -289,7 +300,7 @@ const App = (() => {
           this.startTimes.push(this.toLabel(t));
         this.state.meetingType = 'Phone call';
       } else {
-        this.durationUnits = 6;                       // 3-hour session = 6 units
+        this.durationUnits = 4;                       // 2-hour session = 4 units
         this.startTimes = ['9:00 AM','10:30 AM','12:00 PM','1:30 PM','3:00 PM'];
         this.state.meetingType = 'In person';
       }
@@ -465,8 +476,7 @@ const App = (() => {
       check('name',  v => v.length >= 2);
       if (this.kind === 'intro') {
         check('phone', v => v.replace(/[^0-9]/g,'').length >= 7);
-        if (this.state.meetingType === 'Video call')
-          check('email', v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v));
+        check('email', v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v));
       } else {
         check('email', v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v));
       }
@@ -538,8 +548,7 @@ const App = (() => {
       const change = document.getElementById('changeText');
       if (change) change.innerHTML =
         'Need to change it? Email <a href="mailto:support@greylocktrust.com">support@greylocktrust.com</a> ' +
-        'and we\u2019ll release your time \u2014 then simply rebook whichever new slot suits you. ' +
-        'Or manage it yourself with your <a href="' + manageUrl.href + '">private booking link</a> (save it somewhere safe).';
+        'and we\u2019ll release your time \u2014 then simply rebook whichever new slot suits you.';
 
       this.showPane(4);
     },
@@ -613,13 +622,18 @@ const App = (() => {
       if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Sending\u2026'; }
 
       const topicEl = document.getElementById('ctopic');
-      const res = await BookingsAPI.notify('support', {
-        _subject: 'Support message from the website',
+      const msg = {
         name:    document.getElementById('cname').value.trim(),
         email:   document.getElementById('cemail').value.trim(),
         topic:   topicEl ? topicEl.value : null,
         message: document.getElementById('cmessage').value.trim()
-      });
+      };
+      // 1) into your database inbox…
+      const saved = await BookingsAPI.insert('support_messages', msg);
+      // 2) …and by email once Formspree is configured
+      const mailed = await BookingsAPI.notify('support',
+        { _subject: 'Support message from the website', ...msg });
+      const res = { ok: saved.ok || mailed.ok, skipped: mailed.skipped && saved.ok };
       if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Send message'; }
 
       const name = document.getElementById('cname').value.trim().split(' ')[0];
@@ -764,6 +778,7 @@ document.addEventListener('DOMContentLoaded', App.init);
   const burger = document.getElementById('navBurger');
   const menu = document.getElementById('mobileMenu');
   if (!burger || !menu) return;
+  document.body.classList.add('has-mobilenav');
   burger.addEventListener('click', () => {
     document.body.classList.toggle('menu-open');
   });
