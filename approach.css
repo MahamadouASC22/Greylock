@@ -2234,3 +2234,15 @@ MOBILE MENU BUTTONS — match the site's buttons exactly
   padding-bottom:calc(30px + env(safe-area-inset-bottom));
 }
 
+/* booked slots & full days */
+.slot:disabled, .slot.taken{
+  opacity:.45;cursor:not-allowed;text-decoration:line-through;
+  background:var(--frost);color:var(--muted);
+}
+.cal-day.full{position:relative;}
+.cal-day.full::after{content:"·";position:absolute;bottom:2px;left:50%;
+  transform:translateX(-50%);color:var(--gold);font-size:18px;line-height:1;}
+.slot-note{
+  background:#FBF0DA;border:1px solid #EEDDB7;color:#6E5410;
+  font-size:14.5px;border-radius:10px;padding:11px 14px;margin-bottom:14px;
+}

@@ -10,7 +10,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400;1,9..144,500&family=Public+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="introcall.css">
+<link rel="stylesheet" href="styles.css">
 <script type="module" src="introcall.js"></script>
+<script type="module" src="app.js"></script>
 </head>
 <body>
 
@@ -31,16 +33,12 @@
       <li><a href="approach.html">Our Approach</a></li>
       <li><a href="support.html">Support</a></li>
       <li class="nav-actions">
-                <a class="btn btn-outline nav-cta" href="introcall.html" aria-current="page">Meet an advisor</a>
+        <a class="btn btn-outline nav-cta" href="introcall.html" aria-current="page">Meet an advisor</a>
         <a class="btn btn-gold nav-cta" href="book.html">Get started</a>
       </li>
     </ul>
   </div>
 </nav>
-
-
-      
-
 
 <div class="mobile-menu" id="mobileMenu">
   <a href="approach.html">Our Approach</a>
@@ -99,58 +97,88 @@
       </div>
     </div>
 
-    <div class="booker reveal">
-      <form id="introForm" novalidate>
-        <div class="field">
-          <label id="callTypeLabel">How would you like to talk?</label>
-          <div class="seg" role="group" aria-labelledby="callTypeLabel">
-            <button type="button" class="seg-btn selected" data-value="Phone call">
-              <svg viewBox="0 0 24 24"><path d="M5 4h4l1.5 4.5-2.2 1.7a13 13 0 005.5 5.5l1.7-2.2L20 15v4a1.5 1.5 0 01-1.6 1.5C10 20 4 14 3.5 5.6A1.5 1.5 0 015 4z"/></svg>
-              Phone call
-            </button>
-            <button type="button" class="seg-btn" data-value="Video call">
-              <svg viewBox="0 0 24 24"><rect x="3" y="7" width="12.5" height="10" rx="2"/><path d="M15.5 11l5.5-3v8l-5.5-3"/></svg>
-              Video call
-            </button>
+    <!-- ============================================================
+  PASTE INTO: intro-call.html
+  WHERE: delete your old booking/request form card (the <form> with
+  its surrounding card <div>) and paste this block in its place.
+  Your page's headings and text above/below it are untouched.
+============================================================ -->
+<div class="booker reveal" data-kind="intro">
+      <div class="booker-steps">
+        <div class="bstep active" id="tab1">1 · Day</div>
+        <div class="bstep" id="tab2">2 · Time</div>
+        <div class="bstep" id="tab3">3 · Details</div>
+      </div>
+
+      <div class="pane active" id="pane1">
+        <div class="cal-head">
+          <h3 id="calMonth"></h3>
+          <div class="cal-nav">
+            <button type="button" id="prevMonth" aria-label="Previous month">‹</button>
+            <button type="button" id="nextMonth" aria-label="Next month">›</button>
           </div>
         </div>
-        <div class="field">
-          <label for="iname">Your name</label>
-          <input type="text" id="iname" name="name" autocomplete="name">
-          <p class="field-error">Please enter your name.</p>
-        </div>
-        <div class="field">
-          <label for="iphone">Phone number</label>
-          <input type="tel" id="iphone" name="phone" autocomplete="tel" placeholder="(555) 123-4567">
-          <p class="field-error">Please enter a valid phone number.</p>
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+
+      <div class="pane" id="pane2">
+        <button type="button" class="back-link" data-back="1">‹ Choose a different day</button>
+        <div class="picked" id="pickedDay"></div>
+        <div class="slots" id="slotGrid"></div>
+      </div>
+
+      <div class="pane" id="pane3">
+        <button type="button" class="back-link" data-back="2">‹ Choose a different time</button>
+        <div class="picked" id="pickedSlot"></div>
+        <form id="bookingForm" novalidate>
+          <div class="field">
+            <label id="meetLabel">How would you like to meet?</label>
+            <div class="seg" role="group" aria-labelledby="meetLabel">
+              <button type="button" class="seg-btn selected" data-value="Phone call">Phone call</button>
+              <button type="button" class="seg-btn" data-value="Video call">Video call</button>
+            </div>
+          </div>
+          <div class="field">
+            <label for="name">Your name</label>
+            <input type="text" id="name" name="name" autocomplete="name">
+            <p class="field-error">Please enter your name.</p>
+          </div>
+          <div class="field">
+          <label for="phone">Phone number</label>
+          <input type="tel" id="phone" autocomplete="tel">
+          <p class="field-error">Please enter the number we should call.</p>
         </div>
         <div class="field hidden" id="emailField">
-          <label for="iemail">Email (for your video link)</label>
-          <input type="email" id="iemail" name="email" autocomplete="email">
-          <p class="field-error">Please enter a valid email address so we can send your video link.</p>
-        </div>
-        <div class="field">
-          <label for="itime">When's the best time to call?</label>
-          <select id="itime" name="besttime">
-            <option>Morning (9am – 12pm)</option>
-            <option>Afternoon (12pm – 4pm)</option>
-            <option>Late afternoon (4pm – 6pm)</option>
-            <option>Any time is fine</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="inotes">Anything you'd like us to know? (optional)</label>
-          <textarea id="inotes" name="notes" rows="3" placeholder="For example: 'I got a strange text last week and want to talk it through.'"></textarea>
-        </div>
-        <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center;">Request my call</button>
-      </form>
-      <div class="pane" id="introSuccess">
+            <label for="email">Email for your video link</label>
+            <input type="email" id="email" name="email" autocomplete="email">
+            <p class="field-error">Please enter a valid email address.</p>
+          </div>
+          <div class="field">
+            <label for="situation">Which sounds most like you?</label>
+            <select id="situation" name="situation">
+              <option>I'm new to this and want to get protected</option>
+              <option>I've dealt with a scam or breach before</option>
+              <option>I'm currently dealing with an incident</option>
+              <option>I'm asking on behalf of a family member</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="notes">Anything you'd like us to know? (optional)</label>
+            <textarea id="notes" name="notes" rows="3"></textarea>
+          </div>
+          <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center;">Confirm my call</button>
+        </form>
+      </div>
+
+      <div class="pane" id="pane4">
         <div class="success">
           <div class="badge">
             <svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg>
           </div>
-          <h3>We'll be in touch.</h3>
-          <p id="introConfirm"></p>
+          <h3>You're booked.</h3>
+          <p id="confirmText"></p>
+          <p class="confirm-change" id="changeText"></p>
+          <p style="margin-top:10px;">A confirmation email is on its way, and your advisor will call to introduce themselves before your session.</p>
         </div>
       </div>
     </div>

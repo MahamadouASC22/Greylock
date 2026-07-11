@@ -2,16 +2,6 @@
    GREYLOCK TRUST — styles.css
    Palette: icy whites, frost blues, gold
    ============================================================ */
-   
-.btn-ghost-light{
-  background:rgba(255,255,255,.09);color:#fff;
-  border:1px solid rgba(255,255,255,.28);padding:17px 34px;
-  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
-}
-.btn-ghost-light:hover{
-  background:rgba(255,255,255,.17);border-color:rgba(255,255,255,.55);
-  transform:translateY(-2px);box-shadow:0 12px 30px rgba(0,0,0,.25);
-}
 
 :root{
   /* color system */
@@ -810,90 +800,6 @@ footer .small{font-size:13.5px;margin-top:40px;border-top:1px solid var(--line-s
 .seg-btn:focus-visible{outline:3px solid var(--gold);}
 
 
-/* ---------- story as a full-bleed split (why-us) ---------- */
-.story-band{
-  display:grid;grid-template-columns:1.02fr .98fr;background:var(--surface);
-  border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);
-}
-.story-band-content{
-  display:flex;flex-direction:column;justify-content:center;
-  padding:100px 64px 100px max(28px, calc((100vw - 1320px)/2 + 28px));
-}
-.story-band-content h2{font-size:clamp(32px,3.8vw,48px);margin-bottom:22px;}
-.story-band-content h2 em{color:var(--gold-deep);font-style:italic;}
-.story-band-content p{color:var(--muted);font-size:18px;margin-bottom:18px;max-width:34em;}
-.story-band-content blockquote{
-  margin:14px 0 0;padding:22px 26px;border-left:3px solid var(--gold);
-  background:var(--gold-tint);border-radius:0 12px 12px 0;max-width:34em;
-  font-family:var(--font-serif);font-style:italic;font-size:19.5px;color:var(--ice-ink);line-height:1.5;
-}
-.story-band-photo{position:relative;overflow:hidden;min-height:520px;}
-.story-band-photo img{
-  position:absolute;inset:-6% 0;width:100%;height:112%;object-fit:cover;will-change:transform;
-}
-.story-band-photo::after{
-  content:"";position:absolute;inset:0;
-  background:linear-gradient(90deg,rgba(255,255,255,.4) 0%,rgba(255,255,255,0) 22%);
-}
-@media(max-width:900px){
-  .story-band{grid-template-columns:1fr;}
-  .story-band-content{padding:64px 28px;}
-  .story-band-photo{min-height:420px;order:-1;}
-}
-
-
-/* chips inside a full-bleed band */
-.story-band-content .chips{margin-top:8px;max-width:580px;}
-
-
-/* conditionally shown form fields */
-.field.hidden{display:none;}
-
-
-/* stacked section header (topics on support) */
-.topics-head{max-width:620px;margin-bottom:52px;}
-.topics-head h2{font-size:clamp(32px,4vw,48px);margin-bottom:14px;}
-.topics-head p{color:var(--muted);font-size:19px;}
-
-/* ============================================================
-   ACCOUNT SYSTEM (auth pages, account, dashboard)
-   ============================================================ */
-.auth-wrap{max-width:520px;margin:0 auto;padding:0 24px;}
-.auth-section{padding:90px 0 120px;}
-.form-msg{
-  display:none;font-size:15px;padding:13px 16px;border-radius:10px;margin-bottom:18px;
-}
-.form-msg.error{background:#FBEAE5;color:#8C3B26;border:1px solid #EFC9BC;}
-.form-msg.success{background:#E8F2E9;color:#3D7A4A;border:1px solid #CBE3CF;}
-.auth-alt{
-  text-align:center;margin-top:22px;font-size:15px;color:var(--muted);
-}
-.auth-alt button,.auth-alt a{
-  background:none;border:none;cursor:pointer;font-family:var(--font-body);font-size:15px;
-  color:var(--gold-deep);font-weight:600;text-decoration:none;
-  border-bottom:1.5px solid var(--gold-soft);padding-bottom:2px;
-}
-.auth-alt button:hover,.auth-alt a:hover{border-color:var(--gold-deep);}
-.mfa-box{
-  border:1px solid var(--line-soft);border-radius:14px;padding:24px;margin-top:10px;background:var(--bg);
-}
-.mfa-box img{width:190px;height:190px;margin:14px auto;display:block;background:#fff;border:1px solid var(--line-soft);border-radius:12px;padding:10px;}
-.mfa-secret{
-  font-family:monospace;font-size:13.5px;color:var(--muted);text-align:center;
-  word-break:break-all;margin-bottom:14px;
-}
-.mfa-state{display:flex;gap:12px;align-items:center;font-size:16px;margin-bottom:14px;}
-.mfa-state .pill{
-  font-family:var(--font-display);font-size:11.5px;font-weight:700;letter-spacing:.1em;
-  text-transform:uppercase;padding:6px 13px;border-radius:999px;flex:none;
-}
-.pill.on{background:#E8F2E9;color:#3D7A4A;}
-.pill.off{background:var(--frost);color:var(--muted);}
-.dash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
-@media(max-width:860px){.dash-grid{grid-template-columns:1fr;}}
-.dash-head{display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;margin-bottom:44px;}
-.dash-head h1{font-family:var(--font-serif);font-weight:500;font-size:clamp(32px,4vw,46px);color:var(--ice-ink);}
-
 @media(max-width:860px){
   .nav-inner{padding:12px 18px;gap:10px;}
   .brand img{height:34px;}
@@ -917,6 +823,9 @@ footer .small{font-size:13.5px;margin-top:40px;border-top:1px solid var(--line-s
   .nav-links li:nth-last-child(2){display:none;}  /* tightest screens: logo + Get started */
 }
 
+/* ============================================================
+   MOBILE NAV v2 — full menu, every option
+   ============================================================ */
 .nav-burger{
   display:none;width:44px;height:44px;border-radius:12px;border:1px solid var(--line-soft);
   background:var(--surface);cursor:pointer;align-items:center;justify-content:center;flex:none;
@@ -955,6 +864,7 @@ body.menu-open{overflow:hidden;}
   padding:14px 10px;font-size:14.5px;border-radius:999px;white-space:nowrap;
 }
 @media(max-width:380px){.mobile-menu .mm-actions{grid-template-columns:1fr;}}
+
 
 .mobile-menu .mm-actions{grid-template-columns:1fr;gap:12px;padding-top:18px;}
 .mobile-menu .mm-actions .btn{

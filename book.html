@@ -10,7 +10,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400;1,9..144,500&family=Public+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="book.css">
+<link rel="stylesheet" href="styles.css">
 <script type="module" src="book.js"></script>
+<script type="module" src="app.js"></script>
 </head>
 <body>
 
@@ -78,7 +80,13 @@
       </div>
     </div>
 
-    <div class="booker reveal">
+<div id="managePanel" class="manage-panel" style="display:none;">
+  <h3>Your booking</h3>
+  <p id="manageBody"></p>
+  <button type="button" id="manageCancel" class="btn btn-outline" style="display:none;">Cancel &amp; release this time</button>
+</div>
+
+<div class="booker reveal" data-kind="onboarding">
       <div class="booker-steps">
         <div class="bstep active" id="tab1">1 · Day</div>
         <div class="bstep" id="tab2">2 · Time</div>
@@ -153,6 +161,7 @@
           </div>
           <h3>You're booked.</h3>
           <p id="confirmText"></p>
+          <p class="confirm-change" id="changeText"></p>
           <p style="margin-top:10px;">A confirmation email is on its way, and your advisor will call to introduce themselves before your session.</p>
         </div>
       </div>
