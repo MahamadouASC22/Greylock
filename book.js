@@ -167,8 +167,8 @@ const App = (() => {
      ========================================================== */
   const Booker = {
     // How far ahead clients can book, in months (increase for more dates)
-    MONTHS_AHEAD: 6,
-    SLOT_TIMES: ['9:00 AM', '10:30 AM', '12:00 PM', '1:30 PM', '3:00 PM', '4:30 PM'],
+    MONTHS_AHEAD: 120,
+    SLOT_TIMES: ['10:00 AM', '12:30 AM', '2:00 PM', '4:30 PM'],
     MONTHS: ['January','February','March','April','May','June',
              'July','August','September','October','November','December'],
     DOWS: ['Su','Mo','Tu','We','Th','Fr','Sa'],
