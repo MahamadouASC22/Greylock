@@ -30,17 +30,17 @@ const BookingsAPI = {
     };
   },
 
-  // -> Set of "YYYY-MM-DD|9:00 AM" keys for taken slots in the range
+  // -> Map of "YYYY-MM-DD|9:00 AM" -> number of seats taken in that unit
   async fetchBooked(fromISO, toISO) {
     try {
       const url = `${GREYLOCK.SUPABASE_URL}/rest/v1/booked_slots` +
-                  `?day=gte.${fromISO}&day=lte.${toISO}&select=day,slot`;
+                  `?day=gte.${fromISO}&day=lte.${toISO}&select=day,slot,n`;
       const r = await fetch(url, { headers: this.headers() });
-      if (!r.ok) return new Set();
+      if (!r.ok) return new Map();
       const rows = await r.json();
-      return new Set(rows.map(x => `${x.day}|${x.slot}`));
+      return new Map(rows.map(x => [`${x.day}|${x.slot}`, x.n]));
     } catch (_) {
-      return new Set();   // offline/preview: calendar still works, just unfiltered
+      return new Map();   // offline/preview: calendar still works, just unfiltered
     }
   },
 
@@ -282,7 +282,7 @@ const App = (() => {
     MONTHS: ['January','February','March','April','May','June',
              'July','August','September','October','November','December'],
     DOWS: ['Su','Mo','Tu','We','Th','Fr','Sa'],
-    MONTHS_AHEAD: 6,
+    MONTHS_AHEAD: 12,
 
     state: { viewYear:null, viewMonth:null, selectedDate:null,
              selectedTime:null, meetingType:null },
@@ -301,7 +301,7 @@ const App = (() => {
         this.state.meetingType = 'Phone call';
       } else {
         this.durationUnits = 4;                       // 2-hour session = 4 units
-        this.startTimes = ['9:00 AM','10:30 AM','12:00 PM','1:30 PM','3:00 PM'];
+        this.startTimes = ['9:00 AM','10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM'];
         this.state.meetingType = 'In person';
       }
 
@@ -333,7 +333,7 @@ const App = (() => {
       });
       this.toggleVideoEmail();
 
-      this.booked = new Set();
+      this.booked = new Map();
       this.renderCalendar();
       this.refreshBooked();
       this.initManage();          // stage 2: ?manage=<token>
@@ -347,6 +347,8 @@ const App = (() => {
       wrap.classList.toggle('hidden', !on);
     },
 
+    CAPACITY: 3,   // three interns -> up to 3 meetings (any kind) at once
+
     unitsFor(startLabel) {
       const s = this.toMin(startLabel), out = [];
       for (let i = 0; i < this.durationUnits; i++)
@@ -355,7 +357,8 @@ const App = (() => {
     },
     isStartFree(date, startLabel) {
       const day = BookingsAPI.toISO(date);
-      return this.unitsFor(startLabel).every(u => !this.booked.has(`${day}|${u}`));
+      return this.unitsFor(startLabel)
+        .every(u => (this.booked.get(`${day}|${u}`) || 0) < this.CAPACITY);
     },
     dayHasSpace(date) {
       return this.startTimes.some(t => this.isStartFree(date, t));
@@ -447,7 +450,7 @@ const App = (() => {
         b.type = 'button'; b.className = 'slot'; b.textContent = t;
         if (!this.isStartFree(this.state.selectedDate, t)) {
           b.disabled = true; b.classList.add('taken');
-          b.textContent = t + ' \u2014 taken';
+          b.textContent = t + ' \u2014 fully booked';
           grid.appendChild(b); return;
         }
         b.addEventListener('click', () => {
@@ -839,4 +842,80 @@ document.addEventListener('DOMContentLoaded', App.init);
   if (!d) return;
   const t = new Date(); t.setDate(t.getDate() + 1);
   d.min = t.toISOString().split('T')[0];
+})();
+
+(function () {
+  'use strict';
+  function boot() {
+    var navInner = document.querySelector('.site-nav .nav-inner');
+    var links = document.querySelector('.site-nav .nav-links');
+    if (!navInner || !links) { alert('DIAGNOSIS: this page has no .site-nav / .nav-links — send Claude your <nav> block.'); return; }
+
+    var burger = document.getElementById('navBurger');
+    if (!burger) {
+      burger = document.createElement('button');
+      burger.id = 'navBurger'; burger.className = 'nav-burger';
+      burger.setAttribute('aria-label', 'Menu');
+      burger.innerHTML =
+        '<svg class="bars" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" stroke="#1E3145" stroke-width="2" fill="none" stroke-linecap="round"/></svg>' +
+        '<svg class="x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="#1E3145" stroke-width="2" fill="none" stroke-linecap="round"/></svg>';
+      navInner.appendChild(burger);
+    }
+    var old = document.getElementById('mobileMenu');
+    if (old) old.remove();
+    var menu = document.createElement('div');
+    menu.id = 'mobileMenu'; menu.className = 'mobile-menu';
+    links.querySelectorAll('a:not(.btn)').forEach(function (a) {
+      var c = a.cloneNode(true); c.classList.remove('active'); menu.appendChild(c);
+    });
+    var actions = document.createElement('div'); actions.className = 'mm-actions';
+    links.querySelectorAll('a.btn').forEach(function (b) { actions.appendChild(b.cloneNode(true)); });
+    if (actions.children.length) menu.appendChild(actions);
+    document.querySelector('.site-nav').insertAdjacentElement('afterend', menu);
+
+    burger.onclick = function () { document.body.classList.toggle('menu-open'); };
+    menu.addEventListener('click', function (e) {
+      if (e.target.closest('a')) document.body.classList.remove('menu-open');
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+
+(function () {
+  'use strict';
+  function boot() {
+    var navInner = document.querySelector('.site-nav .nav-inner');
+    var links = document.querySelector('.site-nav .nav-links');
+    if (!navInner || !links) { alert('DIAGNOSIS: this page has no .site-nav / .nav-links — send Claude your <nav> block.'); return; }
+
+    var burger = document.getElementById('navBurger');
+    if (!burger) {
+      burger = document.createElement('button');
+      burger.id = 'navBurger'; burger.className = 'nav-burger';
+      burger.setAttribute('aria-label', 'Menu');
+      burger.innerHTML =
+        '<svg class="bars" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" stroke="#1E3145" stroke-width="2" fill="none" stroke-linecap="round"/></svg>' +
+        '<svg class="x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="#1E3145" stroke-width="2" fill="none" stroke-linecap="round"/></svg>';
+      navInner.appendChild(burger);
+    }
+    var old = document.getElementById('mobileMenu');
+    if (old) old.remove();
+    var menu = document.createElement('div');
+    menu.id = 'mobileMenu'; menu.className = 'mobile-menu';
+    links.querySelectorAll('a:not(.btn)').forEach(function (a) {
+      var c = a.cloneNode(true); c.classList.remove('active'); menu.appendChild(c);
+    });
+    var actions = document.createElement('div'); actions.className = 'mm-actions';
+    links.querySelectorAll('a.btn').forEach(function (b) { actions.appendChild(b.cloneNode(true)); });
+    if (actions.children.length) menu.appendChild(actions);
+    document.querySelector('.site-nav').insertAdjacentElement('afterend', menu);
+
+    burger.onclick = function () { document.body.classList.toggle('menu-open'); };
+    menu.addEventListener('click', function (e) {
+      if (e.target.closest('a')) document.body.classList.remove('menu-open');
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
 })();
