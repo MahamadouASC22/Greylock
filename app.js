@@ -389,11 +389,11 @@ const App = (() => {
     },
 
     showPane(n) {
-      for (let i = 1; i <= 3; i++) {
+      for (let i = 1; i <= 4; i++) {
         const p = document.getElementById('pane' + i);
         if (p) p.classList.toggle('active', i === n);
       }
-      const activeTab = n > 2 ? 3 : n;
+      const activeTab = n > 3 ? 3 : n;
       ['tab1','tab2','tab3'].forEach((id, idx) => {
         const t = document.getElementById(id);
         if (t) t.classList.toggle('active', idx + 1 === activeTab);
