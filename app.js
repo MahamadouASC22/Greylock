@@ -300,7 +300,7 @@ const App = (() => {
           this.startTimes.push(this.toLabel(t));
         this.state.meetingType = 'Phone call';
       } else {
-        this.durationUnits = 4;                       // 2-hour session = 4 units
+        this.durationUnits = 1;                       // 2-hour session = 4 units
         this.startTimes = ['9:00 AM','10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM'];
         this.state.meetingType = 'In person';
       }
@@ -347,7 +347,7 @@ const App = (() => {
       wrap.classList.toggle('hidden', !on);
     },
 
-    CAPACITY: 3,   // three interns -> up to 3 meetings (any kind) at once
+    CAPACITY: 2,   // three interns -> up to 3 meetings (any kind) at once
 
     unitsFor(startLabel) {
       const s = this.toMin(startLabel), out = [];
@@ -389,11 +389,11 @@ const App = (() => {
     },
 
     showPane(n) {
-      for (let i = 1; i <= 4; i++) {
+      for (let i = 1; i <= 3; i++) {
         const p = document.getElementById('pane' + i);
         if (p) p.classList.toggle('active', i === n);
       }
-      const activeTab = n > 3 ? 3 : n;
+      const activeTab = n > 2 ? 3 : n;
       ['tab1','tab2','tab3'].forEach((id, idx) => {
         const t = document.getElementById(id);
         if (t) t.classList.toggle('active', idx + 1 === activeTab);
