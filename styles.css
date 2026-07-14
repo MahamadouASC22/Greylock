@@ -2333,4 +2333,4 @@ body.menu-open{overflow:hidden;}
 
 /* education split variant: give it band spacing on the home page */
 .edu-split{padding:90px 0 100px;border-top:1px solid var(--line-soft);}
-.edu-split .label{margin-bottom:10px;display:inline-flex;}
+.edu-split .label{margin-bottom:10px;display:inline-flex;};
