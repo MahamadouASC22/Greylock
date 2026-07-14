@@ -474,4 +474,3 @@ document.addEventListener('DOMContentLoaded', App.init);
   const t = new Date(); t.setDate(t.getDate() + 1);
   d.min = t.toISOString().split('T')[0];
 })();
-

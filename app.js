@@ -31,21 +31,36 @@ const BookingsAPI = {
   },
 
   // -> Map of "YYYY-MM-DD|9:00 AM" -> number of seats taken in that unit
-  async fetchBooked(fromISO, toISO) {
-    try {
-      const url = `${GREYLOCK.SUPABASE_URL}/rest/v1/booked_slots` +
-                  `?day=gte.${fromISO}&day=lte.${toISO}&select=day,slot,kind,n`;
-      const r = await fetch(url, { headers: this.headers() });
-      if (!r.ok) return new Map();
-      const rows = await r.json();
-      return new Map(rows.map(x => [`${x.day}|${x.slot}|${x.kind}`, x.n]));
-    } catch (_) {
-      return new Map();   // offline/preview: calendar still works, just unfiltered
-    }
-  },
+async fetchBooked(fromISO, toISO) {
+  try {
+    const url =
+      `${GREYLOCK.SUPABASE_URL}/rest/v1/booked_slots` +
+      `?day=gte.${fromISO}&day=lte.${toISO}` +
+      `&select=day,slot,kind`;
 
-  // -> {ok:true} | {ok:false, dupe:true} | {ok:false}
-  async create(payload) {
+    const r = await fetch(url, {
+      headers: this.headers()
+    });
+
+    if (!r.ok) return new Map();
+
+    const rows = await r.json();
+
+    const booked = new Map();
+
+    rows.forEach(row => {
+      const key = `${row.day}|${row.slot}|${row.kind}`;
+      booked.set(key, (booked.get(key) || 0) + 1);
+    });
+
+    return booked;
+
+  } catch (_) {
+    return new Map();
+  }
+},
+
+async create(payload) {
     try {
       const r = await fetch(`${GREYLOCK.SUPABASE_URL}/rest/v1/bookings`, {
         method: 'POST',
@@ -318,10 +333,12 @@ const App = (() => {
         this.state.meetingType = 'Phone call';
         this.CAPACITY = 1;                        // intro calls: one at a time
       } else {
-        this.durationUnits = 1;                       // 2-hour session = 4 units
-        this.startTimes = ['9:00 AM','10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM'];
-        this.state.meetingType = 'In person';
-      }
+    this.durationUnits = 1;
+    this.startTimes = ['9:30 AM','1:00 PM'];
+    this.state.meetingType = 'In person';
+    this.CAPACITY = 1;
+}
+      
 
       const today = new Date(); today.setHours(0,0,0,0);
       this.today = today;
@@ -365,7 +382,7 @@ const App = (() => {
       wrap.classList.toggle('hidden', !on);
     },
 
-    CAPACITY: 2,   // onboarding: 2 at once; intro pages override to 1 in init
+    CAPACITY: 1,   // onboarding: 2 at once; intro pages override to 1 in init
 
     unitsFor(startLabel) {
       const s = this.toMin(startLabel), out = [];
