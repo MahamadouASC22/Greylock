@@ -34,11 +34,11 @@ const BookingsAPI = {
   async fetchBooked(fromISO, toISO) {
     try {
       const url = `${GREYLOCK.SUPABASE_URL}/rest/v1/booked_slots` +
-                  `?day=gte.${fromISO}&day=lte.${toISO}&select=day,slot,n`;
+                  `?day=gte.${fromISO}&day=lte.${toISO}&select=day,slot,kind,n`;
       const r = await fetch(url, { headers: this.headers() });
       if (!r.ok) return new Map();
       const rows = await r.json();
-      return new Map(rows.map(x => [`${x.day}|${x.slot}`, x.n]));
+      return new Map(rows.map(x => [`${x.day}|${x.slot}|${x.kind}`, x.n]));
     } catch (_) {
       return new Map();   // offline/preview: calendar still works, just unfiltered
     }
@@ -83,6 +83,23 @@ const BookingsAPI = {
       });
       return { ok: r.ok };
     } catch (_) { return { ok: false }; }
+  },
+
+  // confirmation email via Edge Function — fire-and-forget; a mail
+  // hiccup must never break a completed booking
+  async sendConfirmation(data) {
+    if (!data || !data.email) return;
+    try {
+      await fetch(`${GREYLOCK.SUPABASE_URL}/functions/v1/send-confirmation-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + GREYLOCK.SUPABASE_ANON_KEY,
+          'apikey': GREYLOCK.SUPABASE_ANON_KEY
+        },
+        body: JSON.stringify(data)
+      });
+    } catch (_) { /* booking already succeeded; stay silent */ }
   },
 
   async rpc(fn, args) {
@@ -299,6 +316,7 @@ const App = (() => {
         for (let t = this.toMin('9:00 AM'); t <= this.toMin('4:30 PM'); t += 30)
           this.startTimes.push(this.toLabel(t));
         this.state.meetingType = 'Phone call';
+        this.CAPACITY = 1;                        // intro calls: one at a time
       } else {
         this.durationUnits = 1;                       // 2-hour session = 4 units
         this.startTimes = ['9:00 AM','10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM'];
@@ -347,7 +365,7 @@ const App = (() => {
       wrap.classList.toggle('hidden', !on);
     },
 
-    CAPACITY: 2,   // three interns -> up to 3 meetings (any kind) at once
+    CAPACITY: 2,   // onboarding: 2 at once; intro pages override to 1 in init
 
     unitsFor(startLabel) {
       const s = this.toMin(startLabel), out = [];
@@ -355,10 +373,16 @@ const App = (() => {
         out.push(this.toLabel(s + i * this.UNIT_MIN));
       return out;
     },
-    isStartFree(date, startLabel) {
+    seatsLeft(date, startLabel) {
       const day = BookingsAPI.toISO(date);
-      return this.unitsFor(startLabel)
-        .every(u => (this.booked.get(`${day}|${u}`) || 0) < this.CAPACITY);
+      let used = 0;
+      this.unitsFor(startLabel).forEach(u => {
+        used = Math.max(used, this.booked.get(`${day}|${u}|${this.kind}`) || 0);
+      });
+      return Math.max(0, this.CAPACITY - used);
+    },
+    isStartFree(date, startLabel) {
+      return this.seatsLeft(date, startLabel) > 0;
     },
     dayHasSpace(date) {
       return this.startTimes.some(t => this.isStartFree(date, t));
@@ -448,10 +472,17 @@ const App = (() => {
       this.startTimes.forEach(t => {
         const b = document.createElement('button');
         b.type = 'button'; b.className = 'slot'; b.textContent = t;
-        if (!this.isStartFree(this.state.selectedDate, t)) {
+        const left = this.seatsLeft(this.state.selectedDate, t);
+        if (left <= 0) {
           b.disabled = true; b.classList.add('taken');
           b.textContent = t + ' \u2014 fully booked';
           grid.appendChild(b); return;
+        }
+        if (this.CAPACITY > 1 && left < this.CAPACITY) {
+          const s = document.createElement('span');
+          s.className = 'seats';
+          s.textContent = `${left} of ${this.CAPACITY} seats left`;
+          b.appendChild(s);
         }
         b.addEventListener('click', () => {
           grid.querySelectorAll('.slot.selected').forEach(s => s.classList.remove('selected'));
@@ -537,6 +568,13 @@ const App = (() => {
         ? `20-minute ${this.state.meetingType.toLowerCase()}`
         : `${this.state.meetingType.toLowerCase()} onboarding session`;
 
+      if (res.ok) {
+        BookingsAPI.sendConfirmation({
+          name: val('name'), email: val('email'),
+          day, slot: this.state.selectedTime,
+          mode: this.state.meetingType, kind: this.kind
+        });
+      }
       BookingsAPI.notify(this.kind === 'intro' ? 'intro' : 'onboarding', {
         _subject: `New ${this.kind} booking \u2014 ${day} ${this.state.selectedTime} (${this.state.meetingType})`,
         ...rows[0],
@@ -842,80 +880,4 @@ document.addEventListener('DOMContentLoaded', App.init);
   if (!d) return;
   const t = new Date(); t.setDate(t.getDate() + 1);
   d.min = t.toISOString().split('T')[0];
-})();
-
-(function () {
-  'use strict';
-  function boot() {
-    var navInner = document.querySelector('.site-nav .nav-inner');
-    var links = document.querySelector('.site-nav .nav-links');
-    if (!navInner || !links) { alert('DIAGNOSIS: this page has no .site-nav / .nav-links — send Claude your <nav> block.'); return; }
-
-    var burger = document.getElementById('navBurger');
-    if (!burger) {
-      burger = document.createElement('button');
-      burger.id = 'navBurger'; burger.className = 'nav-burger';
-      burger.setAttribute('aria-label', 'Menu');
-      burger.innerHTML =
-        '<svg class="bars" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" stroke="#1E3145" stroke-width="2" fill="none" stroke-linecap="round"/></svg>' +
-        '<svg class="x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="#1E3145" stroke-width="2" fill="none" stroke-linecap="round"/></svg>';
-      navInner.appendChild(burger);
-    }
-    var old = document.getElementById('mobileMenu');
-    if (old) old.remove();
-    var menu = document.createElement('div');
-    menu.id = 'mobileMenu'; menu.className = 'mobile-menu';
-    links.querySelectorAll('a:not(.btn)').forEach(function (a) {
-      var c = a.cloneNode(true); c.classList.remove('active'); menu.appendChild(c);
-    });
-    var actions = document.createElement('div'); actions.className = 'mm-actions';
-    links.querySelectorAll('a.btn').forEach(function (b) { actions.appendChild(b.cloneNode(true)); });
-    if (actions.children.length) menu.appendChild(actions);
-    document.querySelector('.site-nav').insertAdjacentElement('afterend', menu);
-
-    burger.onclick = function () { document.body.classList.toggle('menu-open'); };
-    menu.addEventListener('click', function (e) {
-      if (e.target.closest('a')) document.body.classList.remove('menu-open');
-    });
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-  else boot();
-})();
-
-(function () {
-  'use strict';
-  function boot() {
-    var navInner = document.querySelector('.site-nav .nav-inner');
-    var links = document.querySelector('.site-nav .nav-links');
-    if (!navInner || !links) { alert('DIAGNOSIS: this page has no .site-nav / .nav-links — send Claude your <nav> block.'); return; }
-
-    var burger = document.getElementById('navBurger');
-    if (!burger) {
-      burger = document.createElement('button');
-      burger.id = 'navBurger'; burger.className = 'nav-burger';
-      burger.setAttribute('aria-label', 'Menu');
-      burger.innerHTML =
-        '<svg class="bars" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" stroke="#1E3145" stroke-width="2" fill="none" stroke-linecap="round"/></svg>' +
-        '<svg class="x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="#1E3145" stroke-width="2" fill="none" stroke-linecap="round"/></svg>';
-      navInner.appendChild(burger);
-    }
-    var old = document.getElementById('mobileMenu');
-    if (old) old.remove();
-    var menu = document.createElement('div');
-    menu.id = 'mobileMenu'; menu.className = 'mobile-menu';
-    links.querySelectorAll('a:not(.btn)').forEach(function (a) {
-      var c = a.cloneNode(true); c.classList.remove('active'); menu.appendChild(c);
-    });
-    var actions = document.createElement('div'); actions.className = 'mm-actions';
-    links.querySelectorAll('a.btn').forEach(function (b) { actions.appendChild(b.cloneNode(true)); });
-    if (actions.children.length) menu.appendChild(actions);
-    document.querySelector('.site-nav').insertAdjacentElement('afterend', menu);
-
-    burger.onclick = function () { document.body.classList.toggle('menu-open'); };
-    menu.addEventListener('click', function (e) {
-      if (e.target.closest('a')) document.body.classList.remove('menu-open');
-    });
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-  else boot();
 })();
