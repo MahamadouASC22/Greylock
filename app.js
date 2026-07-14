@@ -296,6 +296,40 @@ const App = (() => {
         day → time → details → confirmation
      ========================================================== */
   const Booker = {
+    daysUntil(date) {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  const d = new Date(date);
+  d.setHours(0,0,0,0);
+
+  return Math.floor((d - today) / 86400000);
+},
+
+getCapacity(date) {
+  return this.daysUntil(date) > 14 ? 2 : 1;
+},
+
+getStartTimes(date) {
+  if (this.daysUntil(date) <= 14) {
+    // Next 2 weeks
+    return [
+      '9:30 AM',
+      '1:00 PM'
+    ];
+  }
+
+  // After 2 weeks
+  // After 2 weeks
+return [
+  '9:30 AM',
+  '10:00 AM',
+  '12:00 PM',
+  '12:30 PM',
+  '2:30 PM',
+  '3:00 PM'
+];
+},
     UNIT_MIN: 30,
 
     // labels <-> minutes
@@ -396,13 +430,14 @@ const App = (() => {
       this.unitsFor(startLabel).forEach(u => {
         used = Math.max(used, this.booked.get(`${day}|${u}|${this.kind}`) || 0);
       });
-      return Math.max(0, this.CAPACITY - used);
-    },
+const capacity = this.getCapacity(date);
+return Math.max(0, capacity - used);  
+  },
     isStartFree(date, startLabel) {
       return this.seatsLeft(date, startLabel) > 0;
     },
     dayHasSpace(date) {
-      return this.startTimes.some(t => this.isStartFree(date, t));
+return this.getStartTimes(date).some(t => this.isStartFree(date, t));
     },
 
     async refreshBooked() {
@@ -483,10 +518,13 @@ const App = (() => {
       setTimeout(() => this.showPane(2), 160);
     },
 
-    renderSlots() {
-      const grid = document.getElementById('slotGrid');
-      grid.innerHTML = '';
-      this.startTimes.forEach(t => {
+renderSlots() {
+    const grid = document.getElementById('slotGrid');
+    grid.innerHTML = '';
+
+    const times = this.getStartTimes(this.state.selectedDate);
+
+    times.forEach(t => {
         const b = document.createElement('button');
         b.type = 'button'; b.className = 'slot'; b.textContent = t;
         const left = this.seatsLeft(this.state.selectedDate, t);
@@ -495,10 +533,11 @@ const App = (() => {
           b.textContent = t + ' \u2014 fully booked';
           grid.appendChild(b); return;
         }
-        if (this.CAPACITY > 1 && left < this.CAPACITY) {
-          const s = document.createElement('span');
+const capacity = this.getCapacity(this.state.selectedDate);
+if (capacity > 1 && left < capacity) {
+            const s = document.createElement('span');
           s.className = 'seats';
-          s.textContent = `${left} of ${this.CAPACITY} seats left`;
+          s.textContent = `${left} of ${capacity} seats left`;
           b.appendChild(s);
         }
         b.addEventListener('click', () => {
