@@ -369,7 +369,7 @@ return [
       } else {
     this.durationUnits = 1;
     this.startTimes = ['9:30 AM','1:00 PM'];
-    this.state.meetingType = 'In-person';
+    this.state.meetingType = 'In person';
     this.CAPACITY = 1;
 }
       
