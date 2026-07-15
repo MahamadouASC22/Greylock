@@ -369,7 +369,7 @@ return [
       } else {
     this.durationUnits = 1;
     this.startTimes = ['9:30 AM','1:00 PM'];
-    this.state.meetingType = 'In person';
+    this.state.meetingType = 'In-person';
     this.CAPACITY = 1;
 }
       
@@ -644,7 +644,7 @@ if (capacity > 1 && left < capacity) {
 
       const change = document.getElementById('changeText');
       if (change) change.innerHTML =
-        'Need to change it? Email <a href="mailto:support@greylocktrust.com">support@greylocktrust.com</a> ' +
+        'Need to change it? Email <a href="mailto:team@greylocktrust.com">team@greylocktrust.com</a> ' +
         'and we\u2019ll release your time \u2014 then simply rebook whichever new slot suits you.';
 
       this.showPane(4);
@@ -662,7 +662,7 @@ if (capacity > 1 && left < capacity) {
       const rows = await BookingsAPI.rpc('get_booking', { t: token });
       if (!rows || !rows.length) {
         body.textContent = 'We couldn\u2019t find that booking \u2014 it may already be cancelled. ' +
-          'Email support@greylocktrust.com and we\u2019ll sort it out.';
+          'Email team@greylocktrust.com and we\u2019ll sort it out.';
         return;
       }
       const kind = rows[0].kind === 'intro' ? '20-minute call' : 'Onboarding session';
@@ -679,8 +679,8 @@ if (capacity > 1 && left < capacity) {
         body.innerHTML = ok !== null
           ? 'Your booking is cancelled and the time is released. ' +
             'Pick a new time below whenever suits you \u2014 or email ' +
-            '<a href="mailto:support@greylocktrust.com">support@greylocktrust.com</a> if we can help.'
-          : 'Something went wrong \u2014 please email support@greylocktrust.com and we\u2019ll cancel it for you.';
+            '<a href="mailto:team@greylocktrust.com">team@greylocktrust.com</a> if we can help.'
+          : 'Something went wrong \u2014 please email team@greylocktrust.com and we\u2019ll cancel it for you.';
         this.refreshBooked();
       }, { once: true });
     }
@@ -737,7 +737,7 @@ if (capacity > 1 && left < capacity) {
       document.getElementById('contactConfirm').textContent =
         (res.ok || res.skipped)
           ? `Thank you, ${name} \u2014 your message is on its way. A member of the team will reply within one business day.`
-          : `${name}, something went wrong sending your message \u2014 please email support@greylocktrust.com directly and we\u2019ll take it from there.`;
+          : `${name}, something went wrong sending your message \u2014 please email team@greylocktrust.com directly and we\u2019ll take it from there.`;
       this.form.style.display = 'none';
       document.getElementById('contactSuccess').classList.add('active');
     }
