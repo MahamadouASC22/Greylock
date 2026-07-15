@@ -4,6 +4,9 @@
    - Passwords & sessions are handled entirely by Supabase.
    - This file only builds the screens around their machinery.
    Load AFTER the supabase-js CDN script.
+
+   how to change deployment url on cloudflare 
+   we have greylock.pages.dev that im pretty sure is being trnasferred to the custom domain but im not completely sure
    ============================================================ */
 
 'use strict';

@@ -344,7 +344,7 @@ const App = (() => {
 
       const name = document.getElementById('name').value.trim();
       document.getElementById('confirmText').textContent =
-        `${name}, your ${this.state.meetingType.toLowerCase()} onboarding session ` +
+        `${name}, your ${this.state.meetingType.toLowerCase()} consultation session ` +
         `is set for ${this.fmtDate(this.state.selectedDate)} at ${this.state.selectedTime}.`;
       this.showPane(4);
     }

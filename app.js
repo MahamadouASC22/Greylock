@@ -358,7 +358,7 @@ return [
       if (!this.root || !document.getElementById('calGrid')) return;
 
       // ---- per-page configuration via data attributes ----
-      this.kind = this.root.dataset.kind || 'onboarding';
+      this.kind = this.root.dataset.kind || 'consultation';
       if (this.kind === 'intro') {
         this.durationUnits = 1;                       // 20-min call in one unit
         this.startTimes = [];
@@ -416,7 +416,7 @@ return [
       wrap.classList.toggle('hidden', !on);
     },
 
-    CAPACITY: 1,   // onboarding: 2 at once; intro pages override to 1 in init
+    CAPACITY: 1,   // consultation: 2 at once; intro pages override to 1 in init
 
     unitsFor(startLabel) {
       const s = this.toMin(startLabel), out = [];
@@ -622,7 +622,7 @@ if (capacity > 1 && left < capacity) {
 
       const what = this.kind === 'intro'
         ? `20-minute ${this.state.meetingType.toLowerCase()}`
-        : `${this.state.meetingType.toLowerCase()} onboarding session`;
+        : `${this.state.meetingType.toLowerCase()} consultation session`;
 
       if (res.ok) {
         BookingsAPI.sendConfirmation({
@@ -631,7 +631,7 @@ if (capacity > 1 && left < capacity) {
           mode: this.state.meetingType, kind: this.kind
         });
       }
-      BookingsAPI.notify(this.kind === 'intro' ? 'intro' : 'onboarding', {
+      BookingsAPI.notify(this.kind === 'intro' ? 'intro' : 'consultation', {
         _subject: `New ${this.kind} booking \u2014 ${day} ${this.state.selectedTime} (${this.state.meetingType})`,
         ...rows[0],
         manage_link: manageUrl.href
@@ -665,7 +665,7 @@ if (capacity > 1 && left < capacity) {
           'Email team@greylocktrust.com and we\u2019ll sort it out.';
         return;
       }
-      const kind = rows[0].kind === 'intro' ? '20-minute call' : 'Onboarding session';
+      const kind = rows[0].kind === 'intro' ? '20-minute call' : 'Consultation session';
       const d = new Date(rows[0].day + 'T12:00:00');
       const times = rows.map(r => r.slot);
       body.innerHTML =
