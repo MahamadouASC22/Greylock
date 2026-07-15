@@ -311,24 +311,8 @@ getCapacity(date) {
 },
 
 getStartTimes(date) {
-  if (this.daysUntil(date) <= 14) {
-    // Next 2 weeks
-    return [
-      '9:30 AM',
-      '1:00 PM'
-    ];
-  }
-
-  // After 2 weeks
-  // After 2 weeks
-return [
-  '9:30 AM',
-  '10:00 AM',
-  '12:00 PM',
-  '12:30 PM',
-  '2:30 PM',
-  '3:00 PM'
-];
+  // Only two start times, every bookable day
+  return ['9:30 AM', '1:00 PM'];
 },
     UNIT_MIN: 30,
 
@@ -376,9 +360,21 @@ return [
 
       const today = new Date(); today.setHours(0,0,0,0);
       this.today = today;
-      this.maxAhead = new Date(today.getFullYear(), today.getMonth() + this.MONTHS_AHEAD, 1);
-      this.state.viewYear = today.getFullYear();
-      this.state.viewMonth = today.getMonth();
+
+      // ---- bookable window: only NEXT calendar week (Mon–Fri) ----
+      const dow = today.getDay();                 // 0 = Sun … 6 = Sat
+      const toNextMonday = ((8 - dow) % 7) || 7;  // jump to next week's Monday
+      const windowStart = new Date(today);
+      windowStart.setDate(today.getDate() + toNextMonday);
+      windowStart.setHours(0,0,0,0);
+      const windowEnd = new Date(windowStart);
+      windowEnd.setDate(windowStart.getDate() + 4);   // Mon … Fri
+      this.windowStart = windowStart;
+      this.windowEnd   = windowEnd;
+
+      // open the calendar on the month that contains next week
+      this.state.viewYear  = windowStart.getFullYear();
+      this.state.viewMonth = windowStart.getMonth();
 
       this.calGrid  = document.getElementById('calGrid');
       this.calMonth = document.getElementById('calMonth');
@@ -496,16 +492,20 @@ return this.getStartTimes(date).some(t => this.isStartFree(date, t));
         btn.type = 'button'; btn.className = 'cal-day'; btn.textContent = d;
         const isWeekend = date.getDay() === 0 || date.getDay() === 6;
         const isPast = date <= this.today;
-        const isFull = !isWeekend && !isPast && !this.dayHasSpace(date);
+        const outOfWindow = date < this.windowStart || date > this.windowEnd;
+        const isFull = !isWeekend && !isPast && !outOfWindow && !this.dayHasSpace(date);
         if (isFull) btn.classList.add('full');
-        if (isWeekend || isPast || isFull) btn.disabled = true;
+        if (isWeekend || isPast || outOfWindow || isFull) btn.disabled = true;
         else btn.addEventListener('click', () => this.pickDay(date, btn));
         this.calGrid.appendChild(btn);
       }
+      // lock navigation to the window's month(s)
       this.prevBtn.disabled =
-        y === this.today.getFullYear() && m === this.today.getMonth();
+        y < this.windowStart.getFullYear() ||
+        (y === this.windowStart.getFullYear() && m <= this.windowStart.getMonth());
       this.nextBtn.disabled =
-        y === this.maxAhead.getFullYear() && m === this.maxAhead.getMonth();
+        y > this.windowEnd.getFullYear() ||
+        (y === this.windowEnd.getFullYear() && m >= this.windowEnd.getMonth());
     },
 
     pickDay(date, btn) {
