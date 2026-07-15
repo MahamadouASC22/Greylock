@@ -178,7 +178,7 @@ const App = (() => {
       viewMonth: null,
       selectedDate: null,
       selectedTime: null,
-      meetingType: 'In person'
+      meetingType: 'In-person'
     },
 
     init() {
