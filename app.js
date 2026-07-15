@@ -307,7 +307,9 @@ const App = (() => {
 },
 
 getCapacity(date) {
-  return this.daysUntil(date) > 14 ? 2 : 1;
+  // Seats per time slot — driven by this page's kind
+  // (consultation: 2, intro: 1). Set in init().
+  return this.CAPACITY;
 },
 
 getStartTimes(date) {
@@ -354,7 +356,7 @@ getStartTimes(date) {
     this.durationUnits = 1;
     this.startTimes = ['9:30 AM','1:00 PM'];
     this.state.meetingType = 'In-person';
-    this.CAPACITY = 1;
+    this.CAPACITY = 2;                           // consultations: two per slot
 }
       
 
@@ -412,7 +414,7 @@ getStartTimes(date) {
       wrap.classList.toggle('hidden', !on);
     },
 
-    CAPACITY: 1,   // consultation: 2 at once; intro pages override to 1 in init
+    CAPACITY: 2,   // consultation: 2 at once; intro pages override to 1 in init
 
     unitsFor(startLabel) {
       const s = this.toMin(startLabel), out = [];
@@ -526,17 +528,27 @@ renderSlots() {
 
     times.forEach(t => {
         const b = document.createElement('button');
-        b.type = 'button'; b.className = 'slot'; b.textContent = t;
+        b.type = 'button'; b.className = 'slot';
         const left = this.seatsLeft(this.state.selectedDate, t);
         if (left <= 0) {
+          // fully booked: cross out the time, disable, no booking allowed
           b.disabled = true; b.classList.add('taken');
-          b.textContent = t + ' \u2014 fully booked';
+          const timeSpan = document.createElement('span');
+          timeSpan.textContent = t;
+          timeSpan.style.textDecoration = 'line-through';
+          const note = document.createElement('span');
+          note.className = 'seats';
+          note.textContent = 'fully booked';
+          b.appendChild(timeSpan);
+          b.appendChild(note);
           grid.appendChild(b); return;
         }
+        b.textContent = t;
 const capacity = this.getCapacity(this.state.selectedDate);
 if (capacity > 1 && left < capacity) {
             const s = document.createElement('span');
           s.className = 'seats';
+          s.style.color = '#C3903C';          // gold accent
           s.textContent = `${left} of ${capacity} seats left`;
           b.appendChild(s);
         }
