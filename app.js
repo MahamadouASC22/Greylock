@@ -640,7 +640,7 @@ if (capacity > 1 && left < capacity) {
       document.getElementById('confirmText').textContent =
         `${val('name')}, your ${what} is set for ` +
         `${this.fmtDate(this.state.selectedDate)} at ${this.state.selectedTime}.` +
-        (res.ok ? '' : ' ');
+        (res.ok ? '' : ' (Our booking system had a hiccup \u2014 we\u2019ll confirm by email.)');
 
       const change = document.getElementById('changeText');
       if (change) change.innerHTML =
