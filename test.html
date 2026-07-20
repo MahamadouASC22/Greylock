@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Greylock booking self-test</title>
+<style>
+body{font-family:sans-serif;max-width:720px;margin:40px auto;padding:0 20px;line-height:1.5}
+button{font-size:18px;padding:14px 28px;cursor:pointer}
+pre{background:#f4f4f4;padding:16px;border-radius:8px;white-space:pre-wrap;font-size:15px}
+.ok{color:#1a7f37;font-weight:bold}.bad{color:#c00;font-weight:bold}
+</style></head><body>
+<h1>Booking self-test</h1>
+<p>Click the button. It tries a real test booking and reports exactly what the database said.</p>
+<button id="go">Run the test</button>
+<div id="out"></div>
+<script>
+const URL_ = 'https://otjanvfidvyfhhvteedp.supabase.co';
+const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90amFudmZpZHZ5ZmhodnRlZWRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM1MTQzNDUsImV4cCI6MjA5OTA5MDM0NX0.Rv8pvoALDawrvxn-xpYaJCpZLFHO0eYi4DL6gSOKAFo';
+document.getElementById('go').onclick = async () => {
+  const out = document.getElementById('out');
+  out.innerHTML = '<p>Testing…</p>';
+  const t = new Date(); t.setDate(t.getDate() + 7);
+  const day = t.toISOString().split('T')[0];
+  const row = { day, slot: '9:00 AM', kind: 'intro', mode: 'Phone call',
+                name: 'SELF TEST — delete me', phone: '5550000000',
+                manage_token: (crypto.randomUUID ? crypto.randomUUID() :
+                  'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee') };
+  try {
+    const r = await fetch(URL_ + '/rest/v1/bookings', {
+      method: 'POST',
+      headers: { apikey: KEY, Authorization: 'Bearer ' + KEY,
+                 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      body: JSON.stringify(row)
+    });
+    const body = await r.text();
+    if (r.ok) {
+      out.innerHTML = '<p class="ok">SUCCESS — the database accepted a booking.</p>' +
+        '<p>A row named "SELF TEST — delete me" is now in your bookings table ' +
+        '(delete it after). This proves database + key + policies are ALL fine, ' +
+        'so any remaining problem is inside the booking page itself.</p>';
+    } else {
+      out.innerHTML = '<p class="bad">REJECTED — status ' + r.status + '</p>' +
+        '<p>Photograph this box; the message below names the exact problem:</p>' +
+        '<pre>' + body + '</pre>';
+    }
+  } catch (e) {
+    out.innerHTML = '<p class="bad">NETWORK FAILURE — the request never reached Supabase.</p><pre>' + e + '</pre>';
+  }
+};
+</script></body></html>

@@ -31,31 +31,55 @@ const BookingsAPI = {
   },
 
   // -> Map of "YYYY-MM-DD|9:00 AM" -> number of seats taken in that unit
-  async fetchBooked(fromISO, toISO) {
-    try {
-      const url = `${GREYLOCK.SUPABASE_URL}/rest/v1/booked_slots` +
-                  `?day=gte.${fromISO}&day=lte.${toISO}&select=day,slot,kind,n`;
-      const r = await fetch(url, { headers: this.headers() });
-      if (!r.ok) return new Map();
-      const rows = await r.json();
-      return new Map(rows.map(x => [`${x.day}|${x.slot}|${x.kind}`, x.n]));
-    } catch (_) {
-      return new Map();   // offline/preview: calendar still works, just unfiltered
-    }
-  },
+async fetchBooked(fromISO, toISO) {
+  try {
+    const url =
+      `${GREYLOCK.SUPABASE_URL}/rest/v1/booked_slots` +
+      `?day=gte.${fromISO}&day=lte.${toISO}` +
+      `&select=day,slot,kind`;
 
-  // -> {ok:true} | {ok:false, dupe:true} | {ok:false}
-  async create(payload) {
+    const r = await fetch(url, {
+      headers: this.headers()
+    });
+
+    if (!r.ok) return new Map();
+
+    const rows = await r.json();
+
+    const booked = new Map();
+
+    rows.forEach(row => {
+      const key = `${row.day}|${row.slot}|${row.kind}`;
+      booked.set(key, (booked.get(key) || 0) + 1);
+    });
+
+    return booked;
+
+  } catch (_) {
+    return new Map();
+  }
+},
+
+async create(payload) {
     try {
       const r = await fetch(`${GREYLOCK.SUPABASE_URL}/rest/v1/bookings`, {
         method: 'POST',
         headers: { ...this.headers(), 'Prefer': 'return=minimal' },
         body: JSON.stringify(payload)
       });
-      if (r.ok) return { ok: true };
-      if (r.status === 409) return { ok: false, dupe: true };  // unique(day,slot) fired
-      return { ok: false };
-    } catch (_) {
+    const text = await r.text();
+
+console.log("Status:", r.status);
+console.log("Response:", text);
+
+if (r.ok) return { ok: true };
+if (r.status === 409) return { ok: false, dupe: true };
+
+return {
+  ok: false,
+  status: r.status,
+  error: text
+};    } catch (_) {
       return { ok: false, offline: true };
     }
   },
@@ -281,6 +305,30 @@ const App = (() => {
         day → time → details → confirmation
      ========================================================== */
   const Booker = {
+    daysUntil(date) {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  const d = new Date(date);
+  d.setHours(0,0,0,0);
+
+  return Math.floor((d - today) / 86400000);
+},
+
+getCapacity(date) {
+  // Seats per time slot — driven by this page's kind
+  // (consultation: 2, intro: 1). Set in init().
+  return this.CAPACITY;
+},
+
+getStartTimes(date) {
+  // Friday = 5
+  if (date.getDay() === 5) {
+    return ['9:30 AM'];
+  }
+
+  return ['9:30 AM', '1:00 PM'];
+},
     UNIT_MIN: 30,
 
     // labels <-> minutes
@@ -300,8 +348,6 @@ const App = (() => {
              'July','August','September','October','November','December'],
     DOWS: ['Su','Mo','Tu','We','Th','Fr','Sa'],
     MONTHS_AHEAD: 12,
-    // Demo window: only these dates are bookable. Set to null to
-    // reopen the full calendar after the demo.
     BOOK_WINDOW: { start: '2026-07-20', end: '2026-07-24' },
 
     state: { viewYear:null, viewMonth:null, selectedDate:null,
@@ -312,7 +358,7 @@ const App = (() => {
       if (!this.root || !document.getElementById('calGrid')) return;
 
       // ---- per-page configuration via data attributes ----
-      this.kind = this.root.dataset.kind || 'onboarding';
+      this.kind = this.root.dataset.kind || 'consultation';
       if (this.kind === 'intro') {
         this.durationUnits = 1;                       // 20-min call in one unit
         this.startTimes = [];
@@ -321,16 +367,22 @@ const App = (() => {
         this.state.meetingType = 'Phone call';
         this.CAPACITY = 1;                        // intro calls: one at a time
       } else {
-        this.durationUnits = 4;                       // 2-hour session = 4 units
-        this.startTimes = ['9:30 AM','1:00 PM'];
-        this.state.meetingType = 'In person';
-      }
+    this.durationUnits = 1;
+    this.startTimes = ['9:30 AM','1:00 PM'];
+    this.state.meetingType = 'In-person';
+    this.CAPACITY = 2;                           // consultations: two per slot
+}
+      
 
       const today = new Date(); today.setHours(0,0,0,0);
       this.today = today;
-      this.maxAhead = new Date(today.getFullYear(), today.getMonth() + this.MONTHS_AHEAD, 1);
-      this.state.viewYear = today.getFullYear();
-      this.state.viewMonth = today.getMonth();
+
+      // ---- bookable window: only NEXT calendar week (Mon–Fri) ----
+    this.windowStart = new Date(2026, 6, 20); // July = 6
+this.windowEnd   = new Date(2026, 6, 24);
+
+this.state.viewYear = 2026;
+this.state.viewMonth = 6;
 
       this.calGrid  = document.getElementById('calGrid');
       this.calMonth = document.getElementById('calMonth');
@@ -368,17 +420,7 @@ const App = (() => {
       wrap.classList.toggle('hidden', !on);
     },
 
-    CAPACITY: 2,   // onboarding: 2 at once; intro pages override to 1 in init
-
-    // day-specific schedules: Fridays offer mornings only
-    timesFor(date) {
-      if (date.getDay() === 5) {                       // Friday
-        if (this.kind === 'intro')
-          return this.startTimes.filter(t => this.toMin(t) < this.toMin('12:00 PM'));
-        return ['9:30 AM'];                            // onboarding: one morning session
-      }
-      return this.startTimes;
-    },
+    CAPACITY: 2,   // consultation: 2 at once; intro pages override to 1 in init
 
     unitsFor(startLabel) {
       const s = this.toMin(startLabel), out = [];
@@ -392,13 +434,14 @@ const App = (() => {
       this.unitsFor(startLabel).forEach(u => {
         used = Math.max(used, this.booked.get(`${day}|${u}|${this.kind}`) || 0);
       });
-      return Math.max(0, this.CAPACITY - used);
-    },
+const capacity = this.getCapacity(date);
+return Math.max(0, capacity - used);  
+  },
     isStartFree(date, startLabel) {
       return this.seatsLeft(date, startLabel) > 0;
     },
     dayHasSpace(date) {
-      return this.timesFor(date).some(t => this.isStartFree(date, t));
+return this.getStartTimes(date).some(t => this.isStartFree(date, t));
     },
 
     async refreshBooked() {
@@ -457,19 +500,20 @@ const App = (() => {
         btn.type = 'button'; btn.className = 'cal-day'; btn.textContent = d;
         const isWeekend = date.getDay() === 0 || date.getDay() === 6;
         const isPast = date <= this.today;
-        const iso = BookingsAPI.toISO(date);
-        const inWindow = !this.BOOK_WINDOW ||
-          (iso >= this.BOOK_WINDOW.start && iso <= this.BOOK_WINDOW.end);
-        const isFull = !isWeekend && !isPast && inWindow && !this.dayHasSpace(date);
+        const outOfWindow = date < this.windowStart || date > this.windowEnd;
+        const isFull = !isWeekend && !isPast && !outOfWindow && !this.dayHasSpace(date);
         if (isFull) btn.classList.add('full');
-        if (isWeekend || isPast || isFull || !inWindow) btn.disabled = true;
+        if (isWeekend || isPast || outOfWindow || isFull) btn.disabled = true;
         else btn.addEventListener('click', () => this.pickDay(date, btn));
         this.calGrid.appendChild(btn);
       }
+      // lock navigation to the window's month(s)
       this.prevBtn.disabled =
-        y === this.today.getFullYear() && m === this.today.getMonth();
+        y < this.windowStart.getFullYear() ||
+        (y === this.windowStart.getFullYear() && m <= this.windowStart.getMonth());
       this.nextBtn.disabled =
-        y === this.maxAhead.getFullYear() && m === this.maxAhead.getMonth();
+        y > this.windowEnd.getFullYear() ||
+        (y === this.windowEnd.getFullYear() && m >= this.windowEnd.getMonth());
     },
 
     pickDay(date, btn) {
@@ -482,22 +526,36 @@ const App = (() => {
       setTimeout(() => this.showPane(2), 160);
     },
 
-    renderSlots() {
-      const grid = document.getElementById('slotGrid');
-      grid.innerHTML = '';
-      this.timesFor(this.state.selectedDate).forEach(t => {
+renderSlots() {
+    const grid = document.getElementById('slotGrid');
+    grid.innerHTML = '';
+
+    const times = this.getStartTimes(this.state.selectedDate);
+
+    times.forEach(t => {
         const b = document.createElement('button');
-        b.type = 'button'; b.className = 'slot'; b.textContent = t;
+        b.type = 'button'; b.className = 'slot';
         const left = this.seatsLeft(this.state.selectedDate, t);
         if (left <= 0) {
+          // fully booked: cross out the time, disable, no booking allowed
           b.disabled = true; b.classList.add('taken');
-          b.textContent = t + ' \u2014 fully booked';
+          const timeSpan = document.createElement('span');
+          timeSpan.textContent = t;
+          timeSpan.style.textDecoration = 'line-through';
+          const note = document.createElement('span');
+          note.className = 'seats';
+          note.textContent = 'fully booked';
+          b.appendChild(timeSpan);
+          b.appendChild(note);
           grid.appendChild(b); return;
         }
-        if (this.CAPACITY > 1 && left < this.CAPACITY) {
-          const s = document.createElement('span');
+        b.textContent = t;
+const capacity = this.getCapacity(this.state.selectedDate);
+if (capacity > 1 && left < capacity) {
+            const s = document.createElement('span');
           s.className = 'seats';
-          s.textContent = `${left} of ${this.CAPACITY} seats left`;
+          s.style.color = '#C3903C';          // gold accent
+          s.textContent = `${left} of ${capacity} seats left`;
           b.appendChild(s);
         }
         b.addEventListener('click', () => {
@@ -561,7 +619,7 @@ const App = (() => {
         notes: val('notes') || null,
         manage_token: token
       }));
-
+console.log(rows);
       const res = await BookingsAPI.create(rows);
       if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = oldLabel; }
 
@@ -582,7 +640,7 @@ const App = (() => {
 
       const what = this.kind === 'intro'
         ? `20-minute ${this.state.meetingType.toLowerCase()}`
-        : `${this.state.meetingType.toLowerCase()} onboarding session`;
+        : `${this.state.meetingType.toLowerCase()} consultation session`;
 
       if (res.ok) {
         BookingsAPI.sendConfirmation({
@@ -591,7 +649,7 @@ const App = (() => {
           mode: this.state.meetingType, kind: this.kind
         });
       }
-      BookingsAPI.notify(this.kind === 'intro' ? 'intro' : 'onboarding', {
+      BookingsAPI.notify(this.kind === 'intro' ? 'intro' : 'consultation', {
         _subject: `New ${this.kind} booking \u2014 ${day} ${this.state.selectedTime} (${this.state.meetingType})`,
         ...rows[0],
         manage_link: manageUrl.href
@@ -604,7 +662,7 @@ const App = (() => {
 
       const change = document.getElementById('changeText');
       if (change) change.innerHTML =
-        'Need to change it? Email <a href="mailto:support@greylocktrust.com">support@greylocktrust.com</a> ' +
+        'Need to change it? Email <a href="mailto:team@greylocktrust.com">team@greylocktrust.com</a> ' +
         'and we\u2019ll release your time \u2014 then simply rebook whichever new slot suits you.';
 
       this.showPane(4);
@@ -622,10 +680,10 @@ const App = (() => {
       const rows = await BookingsAPI.rpc('get_booking', { t: token });
       if (!rows || !rows.length) {
         body.textContent = 'We couldn\u2019t find that booking \u2014 it may already be cancelled. ' +
-          'Email support@greylocktrust.com and we\u2019ll sort it out.';
+          'Email team@greylocktrust.com and we\u2019ll sort it out.';
         return;
       }
-      const kind = rows[0].kind === 'intro' ? '20-minute call' : 'Onboarding session';
+      const kind = rows[0].kind === 'intro' ? '20-minute call' : 'Consultation session';
       const d = new Date(rows[0].day + 'T12:00:00');
       const times = rows.map(r => r.slot);
       body.innerHTML =
@@ -639,8 +697,8 @@ const App = (() => {
         body.innerHTML = ok !== null
           ? 'Your booking is cancelled and the time is released. ' +
             'Pick a new time below whenever suits you \u2014 or email ' +
-            '<a href="mailto:support@greylocktrust.com">support@greylocktrust.com</a> if we can help.'
-          : 'Something went wrong \u2014 please email support@greylocktrust.com and we\u2019ll cancel it for you.';
+            '<a href="mailto:team@greylocktrust.com">team@greylocktrust.com</a> if we can help.'
+          : 'Something went wrong \u2014 please email team@greylocktrust.com and we\u2019ll cancel it for you.';
         this.refreshBooked();
       }, { once: true });
     }
@@ -697,7 +755,7 @@ const App = (() => {
       document.getElementById('contactConfirm').textContent =
         (res.ok || res.skipped)
           ? `Thank you, ${name} \u2014 your message is on its way. A member of the team will reply within one business day.`
-          : `${name}, something went wrong sending your message \u2014 please email support@greylocktrust.com directly and we\u2019ll take it from there.`;
+          : `${name}, something went wrong sending your message \u2014 please email team@greylocktrust.com directly and we\u2019ll take it from there.`;
       this.form.style.display = 'none';
       document.getElementById('contactSuccess').classList.add('active');
     }
