@@ -322,7 +322,7 @@ const App = (() => {
         this.CAPACITY = 1;                        // intro calls: one at a time
       } else {
         this.durationUnits = 4;                       // 2-hour session = 4 units
-        this.startTimes = ['9:00 AM','10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM'];
+        this.startTimes = ['9:30 AM','1:00 PM'];
         this.state.meetingType = 'In person';
       }
 
